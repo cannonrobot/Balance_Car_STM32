@@ -4,10 +4,8 @@
 * @author  CL
 * @version V1.0.0
 * @date    04-July-2014
-* @brief   This application contains an example which shows how implementing
-*          a proprietary Bluetooth Low Energy profile: the sensor profile.
-*          The communication is done using a Nucleo board and a Smartphone
-*          with BTLE.
+* @brief   This application is used to control banlance car 
+*          
 ******************************************************************************
 * @attention
 *
