@@ -5,6 +5,7 @@
 #include "juma_sensor.h"
 #include "imu_sensor.h"
 #include "outputdata.h"
+#include "function.h"
 #endif //_APP_H_
 
 

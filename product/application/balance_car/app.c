@@ -1,5 +1,5 @@
 
-#include "app.h"
+#include "function.h"
 #include "imu_sensor_fusion.h"
 /*start adv*/
 
@@ -60,7 +60,7 @@ void on_imu_sensor_data(imu_sensor_data_t* data)
     gravity_filter_run(&gravity_filter_context, data);
 }
 extern float OutData[4];
-extern void 	OutPut_Data();
+extern void 	OutPut_Data(void);
 extern UART_HandleTypeDef UartHandle;
 void print_message(void* args)
 {
