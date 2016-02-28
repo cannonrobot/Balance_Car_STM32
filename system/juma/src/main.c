@@ -168,7 +168,9 @@ int main(void)
     rtc_init();
     dispatch_init();
     //send_acc_data(NULL);
+		
     on_ready();
+		
     while(1)
     {
         HCI_Process();

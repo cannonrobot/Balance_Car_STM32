@@ -44,6 +44,8 @@ void on_ready(void)
     imu_sensor_start();
 
     run_after_delay(print_message, NULL, 0);
+		
+		Encoder_Init();
 }
 
 
@@ -87,6 +89,7 @@ void print_message(void* args)
 	OutData[3]=40;
 	OutPut_Data();//use"Visual Scope" to check the waveform
     ble_device_send(0x01, 6, tmp_buf);
+		Get_Speed();
 }
 
 /* Device On Message */

@@ -5,5 +5,6 @@
 
 
 void Encoder_Init(void);
+void Get_Speed(void);
 
 #endif

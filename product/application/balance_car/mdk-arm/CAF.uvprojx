@@ -418,6 +418,11 @@
               <FileType>1</FileType>
               <FilePath>..\outputdata.c</FilePath>
             </File>
+            <File>
+              <FileName>function.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\function.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1199,6 +1204,11 @@
               <FileName>outputdata.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\outputdata.c</FilePath>
+            </File>
+            <File>
+              <FileName>function.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\function.c</FilePath>
             </File>
           </Files>
         </Group>
