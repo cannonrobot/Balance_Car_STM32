@@ -13,32 +13,29 @@ TIM_Encoder_InitTypeDef  encoderConfig;
 TIM_OC_InitTypeDef       pwmConfig;
 
 void Encoder_Init(void){
+	//A8 A9引脚定义
 	GPIO_InitTypeDef   GPIO_InitStruct;
-   __HAL_RCC_TIM1_CLK_ENABLE();
-   __HAL_RCC_GPIOA_CLK_ENABLE();
-   GPIO_InitStruct.Pin = GPIO_PIN_8 | GPIO_PIN_9;
+  __HAL_RCC_TIM1_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+  GPIO_InitStruct.Pin = GPIO_PIN_8 | GPIO_PIN_9;
   GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
   GPIO_InitStruct.Alternate = GPIO_AF1_TIM1;
-  
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
  
- 
-  
-   __HAL_RCC_TIM5_CLK_ENABLE();
-   __HAL_RCC_GPIOA_CLK_ENABLE();
-   GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1;
+ //A0 A1引脚定义
+  __HAL_RCC_TIM5_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+  GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1;
   GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
   GPIO_InitStruct.Alternate = GPIO_AF2_TIM5;
-  
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 	
-	
-	
-TimHandleT1.Instance = TIM1;
+	//设置TIM1为编码器读数功能
+	TimHandleT1.Instance = TIM1;
   TimHandleT1.Init.Period =  0xFFFF;
   TimHandleT1.Init.Prescaler = 0;
   TimHandleT1.Init.ClockDivision = 0;
@@ -53,16 +50,16 @@ TimHandleT1.Instance = TIM1;
   encoderConfig.IC2Selection=TIM_ICSELECTION_DIRECTTI;
   encoderConfig.IC2Prescaler=0;
   encoderConfig.IC2Filter   =6;
-HAL_TIM_Encoder_Init(&TimHandleT1,  &encoderConfig);
-HAL_TIM_Encoder_Start(&TimHandleT1,TIM_CHANNEL_1);
-
+  HAL_TIM_Encoder_Init(&TimHandleT1,  &encoderConfig);
+  HAL_TIM_Encoder_Start(&TimHandleT1,TIM_CHANNEL_1);
+//设置TIM5为编码器读数功能
   TimHandleT5.Instance = TIM5;
   TimHandleT5.Init.Period =  0xFFFF;
   TimHandleT5.Init.Prescaler = 0;
   TimHandleT5.Init.ClockDivision = 0;
   TimHandleT5.Init.CounterMode = TIM_COUNTERMODE_UP;  
-HAL_TIM_Encoder_Init(&TimHandleT5,  &encoderConfig);
-HAL_TIM_Encoder_Start(&TimHandleT5,TIM_CHANNEL_1);
+  HAL_TIM_Encoder_Init(&TimHandleT5,  &encoderConfig);
+  HAL_TIM_Encoder_Start(&TimHandleT5,TIM_CHANNEL_1);
 
 }
 
@@ -116,38 +113,33 @@ void Motor_Pwm_Init(void){
   }
 
 void Steer_Pwm_Init(void){
-  
-    GPIO_InitTypeDef GPIO_InitStruct;
-  
-    __HAL_RCC_GPIOA_CLK_ENABLE();
-     __HAL_RCC_TIM1_CLK_ENABLE();
-  GPIO_InitStruct.Pin = GPIO_PIN_10|GPIO_PIN_9;
+  //B0引脚定义
+  GPIO_InitTypeDef GPIO_InitStruct;
+  __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_TIM3_CLK_ENABLE();
+  GPIO_InitStruct.Pin = GPIO_PIN_0;
   GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-  GPIO_InitStruct.Alternate = GPIO_AF1_TIM1;
-
-     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-  
-  TimHandleT1.Instance = TIM1;
-  TimHandleT1.Init.Period =  1000 - 1;;
-  TimHandleT1.Init.Prescaler = 2000-1;
-  TimHandleT1.Init.ClockDivision = 0;
-  TimHandleT1.Init.CounterMode = TIM_COUNTERMODE_UP;  
-  HAL_TIM_PWM_Init(&TimHandleT1);
+  GPIO_InitStruct.Alternate = GPIO_AF2_TIM3;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+	//C7引脚定义
+	 __HAL_RCC_GPIOC_CLK_ENABLE();
+	GPIO_InitStruct.Pin = GPIO_PIN_7;
+	 GPIO_InitStruct.Alternate = GPIO_AF2_TIM3;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+  //TIM3
+  TimHandleT3.Instance = TIM3;
+  TimHandleT3.Init.Period =  1000 - 1;;
+  TimHandleT3.Init.Prescaler = 2000-1;
+  TimHandleT3.Init.ClockDivision = 0;
+  TimHandleT3.Init.CounterMode = TIM_COUNTERMODE_UP;  
+  HAL_TIM_PWM_Init(&TimHandleT3);
 
   pwmConfig.OCMode=TIM_OCMODE_PWM1;
   pwmConfig.Pulse=79;
-  HAL_TIM_PWM_ConfigChannel(&TimHandleT1, &pwmConfig, TIM_CHANNEL_2);
-   HAL_TIM_PWM_ConfigChannel(&TimHandleT1, &pwmConfig, TIM_CHANNEL_3);
-  HAL_TIM_PWM_Start(&TimHandleT1, TIM_CHANNEL_3);
-  HAL_TIM_PWM_Start(&TimHandleT1, TIM_CHANNEL_2);
-  
-  
-
-     __HAL_RCC_GPIOA_CLK_ENABLE();
-      __HAL_RCC_TIM1_CLK_ENABLE();
-  
+  HAL_TIM_PWM_ConfigChannel(&TimHandleT3, &pwmConfig, TIM_CHANNEL_2|TIM_CHANNEL_3);
+  HAL_TIM_PWM_Start(&TimHandleT3, TIM_CHANNEL_2|TIM_CHANNEL_3);
   
   }
 void Get_Speed(void){
@@ -177,4 +169,29 @@ void Get_Speed(void){
     Speed_A+=Speed_A_Last*0.3;  
       */
  
+}
+
+HAL_StatusTypeDef HAL_TIM_PWM_Pulse(TIM_HandleTypeDef *htim,  uint32_t Channel,uint32_t Pulse){
+  switch (Channel)
+  {
+    case TIM_CHANNEL_1:
+    {
+   htim->Instance->CCR1 =Pulse;
+    }break;
+    case TIM_CHANNEL_2:
+    {
+       htim->Instance->CCR2 =Pulse;
+    }break;
+    case TIM_CHANNEL_3:
+    {
+       htim->Instance->CCR3 =Pulse;
+    }break;
+    case TIM_CHANNEL_4:
+    {
+       htim->Instance->CCR4 =Pulse;
+    }break;
+    default:
+    break;  
+  }
+   return HAL_OK;
 }
