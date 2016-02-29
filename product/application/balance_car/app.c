@@ -19,6 +19,8 @@ char name[20] = "CANNON_V1";
 
 gravity_filter_context_t gravity_filter_context;
 
+int temp=79;
+
 void on_ready(void)
 {
     uint8_t tx_power_level = 5;
@@ -44,8 +46,9 @@ void on_ready(void)
     imu_sensor_start();
 
     run_after_delay(print_message, NULL, 0);
-		
-		Encoder_Init();
+		//Motor_Pwm_Init();
+		Encoder_Init();         
+		Steer_Pwm_Init();
 }
 
 
@@ -64,6 +67,8 @@ void on_imu_sensor_data(imu_sensor_data_t* data)
 extern float OutData[4];
 extern void 	OutPut_Data(void);
 extern UART_HandleTypeDef UartHandle;
+extern TIM_HandleTypeDef        TimHandleT3;//¶æ»ú
+extern int32_t Speed_R;
 void print_message(void* args)
 {
     gravity_filter_context_t* cx = &gravity_filter_context;
@@ -71,8 +76,8 @@ void print_message(void* args)
     int32_t x,y,z;
     extern float test[3];
 
-    run_after_delay(print_message, NULL, 100);
-
+    run_after_delay(print_message, NULL, 50);
+/*
     x = (int32_t) cx->gravity.x;
     y = (int32_t) cx->gravity.y;
     z = (int32_t) cx->gravity.z;
@@ -87,9 +92,16 @@ void print_message(void* args)
 	OutData[1]=y;
 	OutData[2]=z;
 	OutData[3]=40;
+	*/
+	Get_Speed();
+	OutData[0]=Speed_R;
 	OutPut_Data();//use"Visual Scope" to check the waveform
     ble_device_send(0x01, 6, tmp_buf);
 		Get_Speed();
+		temp++;
+		if(temp>100)temp=60;
+		HAL_TIM_PWM_Pulse(&TimHandleT3,TIM_CHANNEL_3,temp);
+		HAL_TIM_PWM_Pulse(&TimHandleT3,TIM_CHANNEL_2,temp);
 }
 
 /* Device On Message */
