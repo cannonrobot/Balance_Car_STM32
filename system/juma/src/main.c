@@ -49,6 +49,7 @@
 #include "stm32f4xx_hal_msp.h"
 #include "juma_sensor.h"
 
+
 extern uint32_t sleep_time;
 __IO uint32_t uwCounter = 0;
 
@@ -132,6 +133,9 @@ uint32_t stime ;
 
 int main(void)
 {
+	
+
+	
     /* STM32Cube HAL library initialization:
      *  - Configure the Flash prefetch, Flash preread and Buffer caches
      *  - Systick timer is configured by default as source of time base, but user
@@ -149,7 +153,7 @@ int main(void)
     BSP_LED_Init(LED0);
     /*UART2 init*/
     UART_Init();
-    HAL_Delay(1000);
+    HAL_Delay(100);
     /*sensor layer init*/
     #ifndef SENSOR_FIFO
       jsensor_sys_init();
@@ -170,6 +174,10 @@ int main(void)
     //send_acc_data(NULL);
 		
     on_ready();
+		
+		
+
+		
 		
     while(1)
     {

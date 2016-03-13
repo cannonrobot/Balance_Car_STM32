@@ -45,10 +45,11 @@ void on_ready(void)
 
     imu_sensor_start();
 
-    run_after_delay(print_message, NULL, 0);
+  //  run_after_delay(print_message, NULL, 0);
 		//Motor_Pwm_Init();
-		Encoder_Init();         
-		Steer_Pwm_Init();
+	//	Encoder_Init();         
+	//	Steer_Pwm_Init();
+		SD_Init();
 }
 
 
@@ -100,8 +101,8 @@ void print_message(void* args)
 		Get_Speed();
 		temp++;
 		if(temp>100)temp=60;
-		HAL_TIM_PWM_Pulse(&TimHandleT3,TIM_CHANNEL_3,temp);
-		HAL_TIM_PWM_Pulse(&TimHandleT3,TIM_CHANNEL_2,temp);
+	//	HAL_TIM_PWM_Pulse(&TimHandleT3,TIM_CHANNEL_3,temp);
+	//	HAL_TIM_PWM_Pulse(&TimHandleT3,TIM_CHANNEL_2,temp);
 }
 
 /* Device On Message */

@@ -1,5 +1,8 @@
 #include "function.h"
 
+FATFS SDFatFs;  /* File system object for SD disk logical drive */
+FIL MyFile;     /* File object */
+char SDPath[4]; /* SD disk logical drive path */ 
 
 int32_t Speed_L=0;
 int32_t Speed_R=0;
@@ -13,7 +16,68 @@ TIM_HandleTypeDef        TimHandleT2;//舵机
 TIM_HandleTypeDef        TimHandleT3;//舵机
 TIM_HandleTypeDef        TimHandleT4;//电机
 TIM_HandleTypeDef        TimHandleT5;//编码器
+TIM_HandleTypeDef        TimHandleT9;//舵机
 	TIM_OC_InitTypeDef       pwmConfig;//PWM控制（不明白为何这个一定要是全局变量）
+	SD_HandleTypeDef hsd;
+HAL_SD_CardInfoTypedef SDCardInfo;
+HAL_SD_ErrorTypedef SDError;
+	uint8_t result;
+extern	void Error_Handler(void);
+	
+	
+	
+	
+void SD_Init(void){	
+	FRESULT res;                                          /* FatFs function common result code */
+  uint32_t byteswritten;                     /* File write/read counts */
+  uint8_t wtext[] = "This is STM32 working with FatFs"; /* File write buffer */
+                                 
+if(FATFS_LinkDriver(&SD_Driver, SDPath) == 0) 
+  {
+    if(f_mount(&SDFatFs,(TCHAR const*)SDPath, 0) != FR_OK)
+    {
+      Error_Handler();
+    }
+    else
+    {
+        if(f_open(&MyFile, "STM32.TXT", FA_CREATE_ALWAYS  | FA_WRITE) != FR_OK) 
+        {
+          Error_Handler();
+        }
+        else
+        {
+					f_puts("First string in my file\n", &MyFile);
+					/*
+          res = f_write(&MyFile, wtext, sizeof(wtext), (void *)&byteswritten);
+          if((byteswritten == 0) || (res != FR_OK))
+          {
+            Error_Handler();
+          }
+          else
+          {
+						*/
+            f_close(&MyFile);
+           BSP_LED_On(LED0);
+				BSP_LED_Toggle(LED0);
+        HAL_Delay(100);
+						BSP_LED_Toggle(LED0);
+        HAL_Delay(100);
+						BSP_LED_Toggle(LED0);
+        HAL_Delay(100);
+						BSP_LED_Toggle(LED0);
+        HAL_Delay(100);
+						BSP_LED_Toggle(LED0);
+        HAL_Delay(100);
+						BSP_LED_Toggle(LED0);
+        HAL_Delay(100);
+						BSP_LED_Toggle(LED0);
+       //   }
+        }
+		}
+	}
+		 FATFS_UnLinkDriver(SDPath);
+}
+	
 /**
   * @brief  编码器初始化.
   * @param  None
@@ -22,13 +86,13 @@ TIM_HandleTypeDef        TimHandleT5;//编码器
 void Encoder_Init(void){
 	//A8 A9引脚定义
 	GPIO_InitTypeDef   GPIO_InitStruct;
-  __HAL_RCC_TIM1_CLK_ENABLE();
+  __HAL_RCC_TIM9_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
-  GPIO_InitStruct.Pin = GPIO_PIN_8 | GPIO_PIN_9;
+  GPIO_InitStruct.Pin = GPIO_PIN_2 | GPIO_PIN_3;
   GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-  GPIO_InitStruct.Alternate = GPIO_AF1_TIM1;
+  GPIO_InitStruct.Alternate = GPIO_AF3_TIM9;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 	
  //A0 A1引脚定义
@@ -43,11 +107,11 @@ void Encoder_Init(void){
 	
 	//设置TIM1为编码器读数功能
 	TIM_Encoder_InitTypeDef  encoderConfig;
-	TimHandleT1.Instance = TIM1;
-  TimHandleT1.Init.Period =  0xFFFF;
-  TimHandleT1.Init.Prescaler = 0;
-  TimHandleT1.Init.ClockDivision = 0;
-  TimHandleT1.Init.CounterMode = TIM_COUNTERMODE_UP;  
+	TimHandleT9.Instance = TIM9;
+  TimHandleT9.Init.Period =  0xFFFF;
+  TimHandleT9.Init.Prescaler = 0;
+  TimHandleT9.Init.ClockDivision = 0;
+  TimHandleT9.Init.CounterMode = TIM_COUNTERMODE_UP;  
   encoderConfig.EncoderMode =TIM_ENCODERMODE_TI12;
   encoderConfig.IC1Polarity =TIM_ICPOLARITY_RISING;
   encoderConfig.IC1Selection=TIM_ICSELECTION_DIRECTTI;
@@ -57,8 +121,8 @@ void Encoder_Init(void){
   encoderConfig.IC2Selection=TIM_ICSELECTION_DIRECTTI;
   encoderConfig.IC2Prescaler=0;
   encoderConfig.IC2Filter   =6;
-  HAL_TIM_Encoder_Init(&TimHandleT1,  &encoderConfig);
-  HAL_TIM_Encoder_Start(&TimHandleT1,TIM_CHANNEL_1);
+  HAL_TIM_Encoder_Init(&TimHandleT9,  &encoderConfig);
+  HAL_TIM_Encoder_Start(&TimHandleT9,TIM_CHANNEL_1);
 //设置TIM5为编码器读数功能
   TimHandleT5.Instance = TIM5;
   TimHandleT5.Init.Period =  0xFFFF;
@@ -165,15 +229,20 @@ void Steer_Pwm_Init(void){
   */	
 void Get_Speed(void){
   uint32_t TempL,TempR;
-    TempL=HAL_TIM_ReadCapturedValue(&TimHandleT1, TIM_CHANNEL_1);//编码器读取
-    Speed_L=TempL-Pre_Speed_L;
+    TempL=HAL_TIM_ReadCapturedValue(&TimHandleT9, TIM_CHANNEL_1);//编码器读取
+    Speed_L=TempL;
+	/*
+	Speed_L=TempL-Pre_Speed_L;
     Pre_Speed_L=TempL;  
     if(Speed_L<-20000){
        Speed_L+=65535;}
     else   if(Speed_L>20000){
     Speed_L-=65535;} 
-	
+	*/
     TempR=HAL_TIM_ReadCapturedValue(&TimHandleT5, TIM_CHANNEL_1);//编码器读取
+		
+		Speed_R=TempR;
+		/*
     Speed_R=TempR-Pre_Speed_R;
     Pre_Speed_R=TempR;  
     if(Speed_R<-20000){
@@ -184,6 +253,7 @@ void Get_Speed(void){
     Speed_A_Last=(Speed_L-Speed_R)/2;
 		Speed_A*=0.7;
     Speed_A+=Speed_A_Last*0.3;  
+		*/
 }
 /**
   * @brief  set PWM duty cycle.

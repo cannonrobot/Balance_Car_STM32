@@ -423,6 +423,11 @@
               <FileType>1</FileType>
               <FilePath>..\function.c</FilePath>
             </File>
+            <File>
+              <FileName>ffconf.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\ffconf.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -688,6 +693,16 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\system\drivers\bluenrg\bluenrg_ms\stm32_bluenrg_ble.c</FilePath>
             </File>
+            <File>
+              <FileName>stm32f4xx_hal_sd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\drivers\stm32f4xx_hal_driver\src\stm32f4xx_hal_sd.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_ll_sdmmc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\drivers\stm32f4xx_hal_driver\src\stm32f4xx_ll_sdmmc.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -771,6 +786,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\system\bsp\cannon_v2\stm32f4xx_hal_msp.c</FilePath>
             </File>
+            <File>
+              <FileName>stm32469i_discovery_sd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\bsp\cannon_v2\stm32469i_discovery_sd.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -785,6 +805,31 @@
               <FileName>system_stm32f4xx.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\system\cmiss\device\st\src\system_stm32f4xx.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>system/Fatfs</GroupName>
+          <Files>
+            <File>
+              <FileName>diskio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\FatFs\src\diskio.c</FilePath>
+            </File>
+            <File>
+              <FileName>ff.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\FatFs\src\ff.c</FilePath>
+            </File>
+            <File>
+              <FileName>ff_gen_drv.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\FatFs\src\ff_gen_drv.c</FilePath>
+            </File>
+            <File>
+              <FileName>sd_diskio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\FatFs\src\drivers\sd_diskio.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1152,7 +1197,7 @@
               <MiscControls>--C99 --gnu </MiscControls>
               <Define>USE_HAL_DRIVER,STM32F401xE,USE_STM32F4XX_NUCLEO,ENABLE_SPI_FIX,BLUENRG_MS,RTC_LSE,CANNON_V2,SENSOR_FIFO,NO_PRINTF</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\system\drivers\hts221;..\..\..\..\system\drivers\lps25h;..\..\..\..\system\drivers\lps25hb;..\..\..\..\system\drivers\lsm303agr;..\..\..\..\system\drivers\lsm6ds3;..\..\..\..\system\drivers\stm32f4xx_hal_driver\inc;..\..\..\..\system\drivers\common;..\..\..\..\system\drivers\bluenrg\inc;..\..\..\..\system\drivers\bluenrg\bluenrg_ms;..\..\..\..\system\bsp\nucleo;..\..\..\..\system\bsp\cannon_v2;..\..\..\..\system\juma\inc;..\..\..\..\system\cmiss\device\st\inc;..\..\..\..\system\cmiss\include;..\..\balance_car</IncludePath>
+              <IncludePath>..\..\..\..\system\drivers\hts221;..\..\..\..\system\drivers\lps25h;..\..\..\..\system\drivers\lps25hb;..\..\..\..\system\drivers\lsm303agr;..\..\..\..\system\drivers\lsm6ds3;..\..\..\..\system\drivers\stm32f4xx_hal_driver\inc;..\..\..\..\system\drivers\common;..\..\..\..\system\drivers\bluenrg\inc;..\..\..\..\system\drivers\bluenrg\bluenrg_ms;..\..\..\..\system\bsp\nucleo;..\..\..\..\system\bsp\cannon_v2;..\..\..\..\system\juma\inc;..\..\..\..\system\cmiss\device\st\inc;..\..\..\..\system\cmiss\include;..\..\balance_car;..\..\..\..\system\FatFs\src;..\..\..\..\system\FatFs\src\drivers</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1209,6 +1254,11 @@
               <FileName>function.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\function.c</FilePath>
+            </File>
+            <File>
+              <FileName>ffconf.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\ffconf.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -1475,6 +1525,16 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\system\drivers\bluenrg\bluenrg_ms\stm32_bluenrg_ble.c</FilePath>
             </File>
+            <File>
+              <FileName>stm32f4xx_hal_sd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\drivers\stm32f4xx_hal_driver\src\stm32f4xx_hal_sd.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_ll_sdmmc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\drivers\stm32f4xx_hal_driver\src\stm32f4xx_ll_sdmmc.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1558,6 +1618,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\system\bsp\cannon_v2\stm32f4xx_hal_msp.c</FilePath>
             </File>
+            <File>
+              <FileName>stm32469i_discovery_sd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\bsp\cannon_v2\stm32469i_discovery_sd.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1572,6 +1637,31 @@
               <FileName>system_stm32f4xx.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\system\cmiss\device\st\src\system_stm32f4xx.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>system/Fatfs</GroupName>
+          <Files>
+            <File>
+              <FileName>diskio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\FatFs\src\diskio.c</FilePath>
+            </File>
+            <File>
+              <FileName>ff.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\FatFs\src\ff.c</FilePath>
+            </File>
+            <File>
+              <FileName>ff_gen_drv.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\FatFs\src\ff_gen_drv.c</FilePath>
+            </File>
+            <File>
+              <FileName>sd_diskio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\FatFs\src\drivers\sd_diskio.c</FilePath>
             </File>
           </Files>
         </Group>
