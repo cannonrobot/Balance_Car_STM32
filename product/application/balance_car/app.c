@@ -21,20 +21,6 @@ char name[20] = "CANNON_V1";
 gravity_filter_context_t gravity_filter_context;
 
 int temp=79;
-void Prinf1(void){
-	
-	 HAL_Delay(1000);
-	printf("p1");
-	
-}
-void Prinf2(void){
-	
-	
-	 HAL_Delay(500);
-	printf("p2");
-	
-	
-}
 
 static void osTimerCallback (void const *argument)
 {
@@ -53,11 +39,11 @@ static void ToggleLEDsThread(void const *argument)
     /* Toggle LED2 each 400ms */
     BSP_LED_Toggle(LED0);
     
-    osDelay(400);
+    osDelay(300);
   }
 }
 void on_ready(void)
-{
+{/*
     uint8_t tx_power_level = 5;
     uint16_t adv_interval = 100;
     uint8_t bdAddr[6];
@@ -80,13 +66,13 @@ void on_ready(void)
     gravity_filter_init(&gravity_filter_context);
 
     imu_sensor_start();
-
+*/
   //  run_after_delay(print_message, NULL, 0);
 		//Motor_Pwm_Init();
 	//	Encoder_Init();         
 	//	Steer_Pwm_Init();
-		SD_Init();
-
+	
+SD_Init();
  /* Create Timer */
   osTimerDef(LEDTimer, osTimerCallback);
   osTimerId osTimer = osTimerCreate (osTimer(LEDTimer), osTimerPeriodic, NULL);
@@ -94,8 +80,8 @@ void on_ready(void)
   /* Start Timer */
   osTimerStart(osTimer, 200);		
 
-//osThreadDef(uSDThread, SD_Init, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
- // osThreadCreate(osThread(uSDThread), NULL);
+osThreadDef(uSDThread, ToggleLEDsThread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
+  osThreadCreate(osThread(uSDThread), NULL);
 		 osKernelStart();
 }
 
