@@ -42,7 +42,7 @@
 #include "debug.h"
 #include "x_nucleo_iks01a1.h"
 #include "imu_sensor.h"
-
+#include "cmsis_os.h"
 #if NO_PRINTF
 #define printf(...)
 #endif
@@ -98,14 +98,6 @@ void HardFault_Handler(void)
     }
 }
 
-/**
-  * @brief  SVC_Handler This function handles SVCall exception.
-  * @param  None
-  * @retval None
-  */
-void SVC_Handler(void)
-{
-}
 
 /**
   * @brief  DebugMon_Handler This function handles Debug Monitor exception.
@@ -116,14 +108,7 @@ void DebugMon_Handler(void)
 {
 }
 
-/**
-  * @brief  PendSV_Handler This function handles PendSVC exception.
-  * @param  None
-  * @retval None
-  */
-void PendSV_Handler(void)
-{
-}
+
 
 /**
   * @brief  SysTick_Handler This function handles SysTick Handler.
@@ -135,6 +120,7 @@ void SysTick_Handler(void)
     HAL_IncTick();
 
     ms_counter++;
+	osSystickHandler();
 }
 
 
@@ -144,6 +130,9 @@ void SysTick_Handler(void)
 /*  available peripheral interrupt handler's name please refer to the startup */
 /*  file (startup_stm32f4xx.s).                                               */
 /******************************************************************************/
+
+
+
 
 /**
   * @brief  This function handles External line interrupt request for BlueNRG.

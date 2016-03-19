@@ -70,7 +70,7 @@
 
 #include <stdlib.h>
 #include "FreeRTOS.h"
-#include "list.h"
+#include "OS_list.h"
 
 /*-----------------------------------------------------------
  * PUBLIC LIST API documented in list.h

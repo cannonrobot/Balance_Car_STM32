@@ -1,6 +1,7 @@
 
 #include "app.h"
 #include "imu_sensor_fusion.h"
+#include "cmsis_os.h"
 /*start adv*/
 
 #if 0 //NO_PRINTF
@@ -20,7 +21,41 @@ char name[20] = "CANNON_V1";
 gravity_filter_context_t gravity_filter_context;
 
 int temp=79;
+void Prinf1(void){
+	
+	 HAL_Delay(1000);
+	printf("p1");
+	
+}
+void Prinf2(void){
+	
+	
+	 HAL_Delay(500);
+	printf("p2");
+	
+	
+}
 
+static void osTimerCallback (void const *argument)
+{
+  (void) argument;  
+  
+  /* Toggle LED1 */
+  BSP_LED_Toggle(LED0);
+}
+
+static void ToggleLEDsThread(void const *argument)
+{
+  (void) argument;
+  
+  for(;;)
+  {
+    /* Toggle LED2 each 400ms */
+    BSP_LED_Toggle(LED0);
+    
+    osDelay(400);
+  }
+}
 void on_ready(void)
 {
     uint8_t tx_power_level = 5;
@@ -28,9 +63,10 @@ void on_ready(void)
     uint8_t bdAddr[6];
     uint32_t data_rate = 800;
 
+	
     HCI_get_bdAddr(bdAddr);
     adv_name_generate(bdAddr+4);
-    /*Config Adv Parameter And Ready to Adv*/
+
     ble_set_adv_param(name, bdAddr, tx_power_level, adv_interval);
     ble_device_start_advertising();
 
@@ -50,7 +86,20 @@ void on_ready(void)
 	//	Encoder_Init();         
 	//	Steer_Pwm_Init();
 		SD_Init();
+
+ /* Create Timer */
+  osTimerDef(LEDTimer, osTimerCallback);
+  osTimerId osTimer = osTimerCreate (osTimer(LEDTimer), osTimerPeriodic, NULL);
+  
+  /* Start Timer */
+  osTimerStart(osTimer, 200);		
+
+//osThreadDef(uSDThread, SD_Init, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
+ // osThreadCreate(osThread(uSDThread), NULL);
+		 osKernelStart();
 }
+
+
 
 
 static void adv_name_generate(uint8_t* uni_name) {

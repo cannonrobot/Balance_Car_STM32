@@ -45,7 +45,7 @@
 #include "bluenrg_sdk_api.h"
 #include "bluenrg_sdk_host_api.h"
 #include "stm32f401_lp_mode.h"
-#include "dispatch.h"
+//#include "dispatch.h"
 #include "stm32f4xx_hal_msp.h"
 #include "juma_sensor.h"
 
@@ -169,8 +169,8 @@ int main(void)
     /* Enable Power Clock */
     __HAL_RCC_PWR_CLK_ENABLE();
 
-    rtc_init();
-    dispatch_init();
+  //  rtc_init();
+  //  dispatch_init();
     //send_acc_data(NULL);
 		
     on_ready();
@@ -185,7 +185,7 @@ int main(void)
         if(Ble_conn_state) {
             Ble_conn_state = BLE_NOCONNECTABLE;
         }
-        dispatch();
+   //     dispatch();
 //        if(sleep_flag == 1) {
 //            StopMode_Measure();
 //        }

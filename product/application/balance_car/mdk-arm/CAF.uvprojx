@@ -428,6 +428,11 @@
               <FileType>5</FileType>
               <FilePath>..\ffconf.h</FilePath>
             </File>
+            <File>
+              <FileName>FreeRTOSConfig.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\FreeRTOSConfig.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -644,11 +649,6 @@
               <FilePath>..\..\..\..\system\drivers\stm32f4xx_hal_driver\src\stm32f4xx_ll_usb.c</FilePath>
             </File>
             <File>
-              <FileName>list.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\system\drivers\bluenrg\src\list.c</FilePath>
-            </File>
-            <File>
               <FileName>osal.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\system\drivers\bluenrg\src\osal.c</FilePath>
@@ -702,6 +702,11 @@
               <FileName>stm32f4xx_ll_sdmmc.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\system\drivers\stm32f4xx_hal_driver\src\stm32f4xx_ll_sdmmc.c</FilePath>
+            </File>
+            <File>
+              <FileName>list.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\drivers\bluenrg\src\list.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -830,6 +835,51 @@
               <FileName>sd_diskio.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\system\FatFs\src\drivers\sd_diskio.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>system/FreeRTOS</GroupName>
+          <Files>
+            <File>
+              <FileName>cmsis_os.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\FreeRTOS\Source\CMSIS_RTOS\cmsis_os.c</FilePath>
+            </File>
+            <File>
+              <FileName>croutine.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\FreeRTOS\Source\croutine.c</FilePath>
+            </File>
+            <File>
+              <FileName>queue.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\FreeRTOS\Source\queue.c</FilePath>
+            </File>
+            <File>
+              <FileName>tasks.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\FreeRTOS\Source\tasks.c</FilePath>
+            </File>
+            <File>
+              <FileName>timers.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\FreeRTOS\Source\timers.c</FilePath>
+            </File>
+            <File>
+              <FileName>heap_4.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\FreeRTOS\Source\portable\MemMang\heap_4.c</FilePath>
+            </File>
+            <File>
+              <FileName>port.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\FreeRTOS\Source\portable\RVDS\ARM_CM4F\port.c</FilePath>
+            </File>
+            <File>
+              <FileName>OS_list.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\FreeRTOS\Source\OS_list.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1197,7 +1247,7 @@
               <MiscControls>--C99 --gnu </MiscControls>
               <Define>USE_HAL_DRIVER,STM32F401xE,USE_STM32F4XX_NUCLEO,ENABLE_SPI_FIX,BLUENRG_MS,RTC_LSE,CANNON_V2,SENSOR_FIFO,NO_PRINTF</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\system\drivers\hts221;..\..\..\..\system\drivers\lps25h;..\..\..\..\system\drivers\lps25hb;..\..\..\..\system\drivers\lsm303agr;..\..\..\..\system\drivers\lsm6ds3;..\..\..\..\system\drivers\stm32f4xx_hal_driver\inc;..\..\..\..\system\drivers\common;..\..\..\..\system\drivers\bluenrg\inc;..\..\..\..\system\drivers\bluenrg\bluenrg_ms;..\..\..\..\system\bsp\nucleo;..\..\..\..\system\bsp\cannon_v2;..\..\..\..\system\juma\inc;..\..\..\..\system\cmiss\device\st\inc;..\..\..\..\system\cmiss\include;..\..\balance_car;..\..\..\..\system\FatFs\src;..\..\..\..\system\FatFs\src\drivers</IncludePath>
+              <IncludePath>..\..\..\..\system\drivers\hts221;..\..\..\..\system\drivers\lps25h;..\..\..\..\system\drivers\lps25hb;..\..\..\..\system\drivers\lsm303agr;..\..\..\..\system\drivers\lsm6ds3;..\..\..\..\system\drivers\stm32f4xx_hal_driver\inc;..\..\..\..\system\drivers\common;..\..\..\..\system\drivers\bluenrg\inc;..\..\..\..\system\drivers\bluenrg\bluenrg_ms;..\..\..\..\system\bsp\nucleo;..\..\..\..\system\bsp\cannon_v2;..\..\..\..\system\juma\inc;..\..\..\..\system\cmiss\device\st\inc;..\..\..\..\system\cmiss\include;..\..\balance_car;..\..\..\..\system\FatFs\src;..\..\..\..\system\FatFs\src\drivers;..\..\..\..\system\FreeRTOS\Source\portable\RVDS\ARM_CM4F;..\..\..\..\system\FreeRTOS\Source\include;..\..\..\..\system\FreeRTOS\Source\CMSIS_RTOS</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1259,6 +1309,11 @@
               <FileName>ffconf.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\ffconf.h</FilePath>
+            </File>
+            <File>
+              <FileName>FreeRTOSConfig.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\FreeRTOSConfig.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -1476,11 +1531,6 @@
               <FilePath>..\..\..\..\system\drivers\stm32f4xx_hal_driver\src\stm32f4xx_ll_usb.c</FilePath>
             </File>
             <File>
-              <FileName>list.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\system\drivers\bluenrg\src\list.c</FilePath>
-            </File>
-            <File>
               <FileName>osal.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\system\drivers\bluenrg\src\osal.c</FilePath>
@@ -1534,6 +1584,11 @@
               <FileName>stm32f4xx_ll_sdmmc.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\system\drivers\stm32f4xx_hal_driver\src\stm32f4xx_ll_sdmmc.c</FilePath>
+            </File>
+            <File>
+              <FileName>list.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\drivers\bluenrg\src\list.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1662,6 +1717,51 @@
               <FileName>sd_diskio.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\system\FatFs\src\drivers\sd_diskio.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>system/FreeRTOS</GroupName>
+          <Files>
+            <File>
+              <FileName>cmsis_os.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\FreeRTOS\Source\CMSIS_RTOS\cmsis_os.c</FilePath>
+            </File>
+            <File>
+              <FileName>croutine.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\FreeRTOS\Source\croutine.c</FilePath>
+            </File>
+            <File>
+              <FileName>queue.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\FreeRTOS\Source\queue.c</FilePath>
+            </File>
+            <File>
+              <FileName>tasks.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\FreeRTOS\Source\tasks.c</FilePath>
+            </File>
+            <File>
+              <FileName>timers.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\FreeRTOS\Source\timers.c</FilePath>
+            </File>
+            <File>
+              <FileName>heap_4.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\FreeRTOS\Source\portable\MemMang\heap_4.c</FilePath>
+            </File>
+            <File>
+              <FileName>port.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\FreeRTOS\Source\portable\RVDS\ARM_CM4F\port.c</FilePath>
+            </File>
+            <File>
+              <FileName>OS_list.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\FreeRTOS\Source\OS_list.c</FilePath>
             </File>
           </Files>
         </Group>
