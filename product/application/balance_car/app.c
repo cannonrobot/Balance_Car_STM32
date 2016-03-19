@@ -25,8 +25,6 @@ int temp=79;
 static void osTimerCallback (void const *argument)
 {
   (void) argument;  
-  
-  /* Toggle LED1 */
   BSP_LED_Toggle(LED0);
 }
 
@@ -36,7 +34,6 @@ static void ToggleLEDsThread(void const *argument)
   
   for(;;)
   {
-    /* Toggle LED2 each 400ms */
     BSP_LED_Toggle(LED0);
     
     osDelay(300);
@@ -80,8 +77,8 @@ SD_Init();
   /* Start Timer */
   osTimerStart(osTimer, 200);		
 
-osThreadDef(uSDThread, ToggleLEDsThread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
-  osThreadCreate(osThread(uSDThread), NULL);
+osThreadDef(uLEDThread, ToggleLEDsThread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
+  osThreadCreate(osThread(uLEDThread), NULL);
 		 osKernelStart();
 }
 
