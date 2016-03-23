@@ -25,7 +25,8 @@ int temp=79;
 static void osTimerCallback (void const *argument)
 {
   (void) argument;  
-  BSP_LED_Toggle(LED0);
+  //BSP_LED_Toggle(LED0);
+	Get_Adc();
 }
 
 static void ToggleLEDsThread(void const *argument)
@@ -68,7 +69,7 @@ void on_ready(void)
 		//Motor_Pwm_Init();
 	//	Encoder_Init();         
 	//	Steer_Pwm_Init();
-	
+	Adc_Init();
 SD_Init();
  /* Create Timer */
   osTimerDef(LEDTimer, osTimerCallback);

@@ -16,8 +16,9 @@ void Encoder_Init(void);
 void Get_Speed(void);
 void Steer_Pwm_Init(void);
 void Motor_Pwm_Init(void);
-
 void	SD_Init(void);
+void	Adc_Init(void);
 
+	void Get_Adc(void);
 HAL_StatusTypeDef HAL_TIM_PWM_Pulse(TIM_HandleTypeDef *htim,  uint32_t Channel,uint32_t Pulse);
 #endif

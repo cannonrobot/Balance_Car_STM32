@@ -18,14 +18,84 @@ TIM_HandleTypeDef        TimHandleT4;//电机
 TIM_HandleTypeDef        TimHandleT5;//编码器
 TIM_HandleTypeDef        TimHandleT9;//舵机
 	TIM_OC_InitTypeDef       pwmConfig;//PWM控制（不明白为何这个一定要是全局变量）
+	/* ADC handler declaration */
+ADC_HandleTypeDef    AdcHandle;
+
+/* Variable used to get converted value */
+__IO uint16_t uhADCxConvertedValue = 0;
 	SD_HandleTypeDef hsd;
 HAL_SD_CardInfoTypedef SDCardInfo;
 HAL_SD_ErrorTypedef SDError;
 	uint8_t result;
 extern	void Error_Handler(void);
 	
+void Adc_Init(){
+	 ADC_ChannelConfTypeDef sConfig;
+	GPIO_InitTypeDef          GPIO_InitStruct;
+  
+  /*##-- Enable peripherals and GPIO Clocks #################################*/
+  /* ADC3 Periph clock enable */
+	__HAL_RCC_ADC1_CLK_ENABLE();
+  /* Enable GPIO clock ****************************************/
+  __HAL_RCC_GPIOC_CLK_ENABLE();
+  
+  /*##-- Configure peripheral GPIO ##########################################*/ 
+  /* ADC3 Channel8 GPIO pin configuration */
+  GPIO_InitStruct.Pin = GPIO_PIN_3;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 	
-	
+ AdcHandle.Instance          = ADC1;
+  
+  AdcHandle.Init.ClockPrescaler        = ADC_CLOCKPRESCALER_PCLK_DIV2;
+  AdcHandle.Init.Resolution            = ADC_RESOLUTION_12B;
+  AdcHandle.Init.ScanConvMode          = DISABLE;
+  AdcHandle.Init.ContinuousConvMode    = DISABLE;
+  AdcHandle.Init.DiscontinuousConvMode = DISABLE;
+  AdcHandle.Init.NbrOfDiscConversion   = 0;
+  AdcHandle.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
+  AdcHandle.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T1_CC1;
+  AdcHandle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
+  AdcHandle.Init.NbrOfConversion       = 1;
+  AdcHandle.Init.DMAContinuousRequests = DISABLE;
+  AdcHandle.Init.EOCSelection          = DISABLE;
+      
+  if(HAL_ADC_Init(&AdcHandle) != HAL_OK)
+  {
+    /* Initialization Error */
+    Error_Handler();
+  }
+  
+  /*##-- Configure ADC regular channel ######################################*/  
+  sConfig.Channel      = ADC_CHANNEL_13;
+  sConfig.Rank         = 1;
+  sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+  sConfig.Offset       = 0;
+  
+  if(HAL_ADC_ConfigChannel(&AdcHandle, &sConfig) != HAL_OK)
+  {
+    /* Channel Configuration Error */
+    Error_Handler();
+  }
+ 
+}	
+	void Get_Adc(void){
+		 /*##-- Start the conversion process #######################################*/  
+  if(HAL_ADC_Start(&AdcHandle) != HAL_OK)
+  {
+    /* Start Conversation Error */
+    Error_Handler();
+  }
+		/*##- Wait for the end of conversion #####################################*/  
+  HAL_ADC_PollForConversion(&AdcHandle, 10);
+  /* Check if the continuous conversion of regular channel is finished */
+  if((HAL_ADC_GetState(&AdcHandle) & HAL_ADC_STATE_EOC_REG) == HAL_ADC_STATE_EOC_REG)
+  {
+    /*##-5- Get the converted value of regular channel  ######################*/
+    uhADCxConvertedValue = HAL_ADC_GetValue(&AdcHandle);
+  }
+	}
 	
 void SD_Init(void){	
 	FRESULT res;                                          /* FatFs function common result code */
