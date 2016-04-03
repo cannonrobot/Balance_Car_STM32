@@ -98,13 +98,13 @@ IMU_6AXES_StatusTypeDef BSP_IMU_6AXES_Init(void)
 
                 /* Configure sensor */
                 InitStructure.G_FullScale      = 2000.0f; /* 2000DPS */
-                InitStructure.G_OutputDataRate = 104.0f;  /* 104HZ */
+                InitStructure.G_OutputDataRate = 1600.0f;  /* 104HZ */
                 InitStructure.G_X_Axis         = 1;       /* Enable */
                 InitStructure.G_Y_Axis         = 1;       /* Enable */
                 InitStructure.G_Z_Axis         = 1;       /* Enable */
 
                 InitStructure.X_FullScale      = 2.0f;    /* 2G */
-                InitStructure.X_OutputDataRate = 104.0f;  /* 104HZ */
+                InitStructure.X_OutputDataRate = 1600.0f;  /* 104HZ */
                 InitStructure.X_X_Axis         = 1;       /* Enable */
                 InitStructure.X_Y_Axis         = 1;       /* Enable */
                 InitStructure.X_Z_Axis         = 1;       /* Enable */

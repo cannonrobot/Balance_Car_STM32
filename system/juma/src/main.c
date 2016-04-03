@@ -169,16 +169,19 @@ int main(void)
     /* Enable Power Clock */
     __HAL_RCC_PWR_CLK_ENABLE();
 
+
+
+
   //  rtc_init();
   //  dispatch_init();
     //send_acc_data(NULL);
 		
     on_ready();
 		
-		
+		while(1);
 
 		
-		
+	/*	
     while(1)
     {
         HCI_Process();
@@ -191,6 +194,7 @@ int main(void)
 //        }
 
     }
+		*/
 }
 
 static void send_acc_data(void * args)

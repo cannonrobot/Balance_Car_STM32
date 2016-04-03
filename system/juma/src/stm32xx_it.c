@@ -43,6 +43,7 @@
 #include "x_nucleo_iks01a1.h"
 #include "imu_sensor.h"
 #include "cmsis_os.h"
+#include "control.h"
 #if NO_PRINTF
 #define printf(...)
 #endif
@@ -200,7 +201,7 @@ void EXTI0_IRQHandler(void)
    if(__HAL_GPIO_EXTI_GET_IT(MEMS_INT1_PIN) != RESET)
   {
     __HAL_GPIO_EXTI_CLEAR_IT(MEMS_INT1_PIN);
-    
+    Car_Control();
 //    imu_sensor_read_data_from_fifo();
 //    printf("fifo interrupt \n");
   }

@@ -13,7 +13,7 @@
 #define IMU_SENSOR_FEATURE_MAG  0x04
 
 /*fifo threthold level*/
-#define FIFO_WATER_MARK         48
+#define FIFO_WATER_MARK         6
 
 /*FIFO CTRL MASK*/
 #define LSM6DS3_XG_FIFO_THRESHOLD_MASK                      ((uint8_t)0x0F)
@@ -62,6 +62,17 @@ typedef struct _imu_sensor_data_t {
 
 } imu_sensor_data_t;
 
+typedef struct _imu_sensor_raw_data_t {
+
+
+    int16_t acc[3];
+
+    int16_t gyro[3];
+
+    int16_t mag[3];
+
+} imu_sensor_raw_data_t;
+
 typedef struct _sensor_data_sensitivity{
    
    float acc_sensitivity;
@@ -70,6 +81,26 @@ typedef struct _sensor_data_sensitivity{
  
 } imu_sensor_data_sensitivity_t;
 
+
+		typedef struct
+{
+  float pitch;
+	float roll;
+	float yaw;
+} imu_euler_data_t;			
+
+	typedef struct
+{
+  int16_t A_X;
+  int16_t A_Y;
+  int16_t A_Z;
+	int16_t G_X;
+  int16_t G_Y;
+  int16_t G_Z;
+	int16_t M_X;
+  int16_t M_Y;
+  int16_t M_Z;
+} IMU_Offset;
 typedef struct _sensor_data_read_param_t{
     uint8_t delay_time;
     uint8_t group_number;
@@ -93,8 +124,9 @@ imu_status_t imu_sensor_stop(void);
 
 void on_imu_sensor_data(imu_sensor_data_t* data); 
 
-void imu_sensor_read_data_from_fifo(void* arg);
+imu_status_t imu_sensor_read_data_from_fifo(imu_sensor_raw_data_t* Sensor_Raw_Data,imu_sensor_data_t* Sensor_Data,imu_euler_data_t* Sensor_Euler_Angle);
 
+imu_status_t imu_sensor_filter(void);
 
 #endif /*_IMU_SENSOR_H_*/
 

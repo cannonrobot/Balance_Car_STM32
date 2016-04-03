@@ -1,64 +1,9 @@
-/* ----------------------------------------------------------------------
- * $Date:        5. February 2013
- * $Revision:    V1.02
- *
- * Project:      CMSIS-RTOS API
- * Title:        cmsis_os.c
- *
- * Version 0.02
- *    Initial Proposal Phase
- * Version 0.03
- *    osKernelStart added, optional feature: main started as thread
- *    osSemaphores have standard behavior
- *    osTimerCreate does not start the timer, added osTimerStart
- *    osThreadPass is renamed to osThreadYield
- * Version 1.01
- *    Support for C++ interface
- *     - const attribute removed from the osXxxxDef_t typedef's
- *     - const attribute added to the osXxxxDef macros
- *    Added: osTimerDelete, osMutexDelete, osSemaphoreDelete
- *    Added: osKernelInitialize
- * Version 1.02
- *    Control functions for short timeouts in microsecond resolution:
- *    Added: osKernelSysTick, osKernelSysTickFrequency, osKernelSysTickMicroSec
- *    Removed: osSignalGet 
- *    
- *  
- *----------------------------------------------------------------------------
- *
- * Portions COPYRIGHT 2015 STMicroelectronics
- * Portions Copyright (c) 2013 ARM LIMITED
- * All rights reserved.
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *  - Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *  - Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *  - Neither the name of ARM  nor the names of its contributors may be used
- *    to endorse or promote products derived from this software without
- *    specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDERS AND CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-
- /**
+/**
   ******************************************************************************
-  * @file    cmsis_os.c
+  * @file    cmsis_os.c 
   * @author  MCD Application Team
-  * @date    27-March-2015
-  * @brief   CMSIS-RTOS API implementation for FreeRTOS V8.2.1
+  * @date    25-December-2014
+  * @brief   CMSIS-RTOS API implementation for FreeRTOS V8.1.2
   ******************************************************************************
   * @attention
   *
@@ -264,14 +209,7 @@ osStatus osThreadSetPriority (osThreadId thread_id, osPriority priority)
 osPriority osThreadGetPriority (osThreadId thread_id)
 {
 #if (INCLUDE_uxTaskPriorityGet == 1)
-  if (inHandlerMode())
-  {
-    return makeCmsisPriority(uxTaskPriorityGetFromISR(thread_id));  
-  }
-  else
-  {  
-    return makeCmsisPriority(uxTaskPriorityGet(thread_id));
-  }
+  return makeCmsisPriority(uxTaskPriorityGet(thread_id));
 #else
   return osPriorityError;
 #endif
@@ -462,27 +400,10 @@ osStatus result = osOK;
 * @brief  Set the specified Signal Flags of an active thread.
 * @param  thread_id     thread ID obtained by \ref osThreadCreate or \ref osThreadGetId.
 * @param  signals       specifies the signal flags of the thread that should be set.
-* @retval  osOK if successful, osErrorOS if failed .
+* @retval  previous signal flags of the specified thread or 0x80000000 in case of incorrect parameters.
 * @note   MUST REMAIN UNCHANGED: \b osSignalSet shall be consistent in every CMSIS-RTOS.
 */
-int32_t osSignalSet (osThreadId thread_id, int32_t signal)
-{
-  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-  
-  if (inHandlerMode())
-  {
-    if(xTaskNotifyFromISR( thread_id, (uint32_t)signal, eSetBits, &xHigherPriorityTaskWoken ) != pdPASS )
-      return osErrorOS;
-
-    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
-  }  
-  else if(xTaskNotify( thread_id, (uint32_t)signal, eSetBits) != pdPASS )
-  {
-    return osErrorOS;
-  }
-  
-  return osOK;
-}
+int32_t osSignalSet (osThreadId thread_id, int32_t signal);
 
 /**
 * @brief  Clear the specified Signal Flags of an active thread.
@@ -500,42 +421,7 @@ int32_t osSignalClear (osThreadId thread_id, int32_t signal);
 * @retval  event flag information or error code.
 * @note   MUST REMAIN UNCHANGED: \b osSignalWait shall be consistent in every CMSIS-RTOS.
 */
-osEvent osSignalWait (int32_t signals, uint32_t millisec)
-{
-  osEvent ret;
-  TickType_t ticks;
-
-  ret.value.signals = 0;  
-  ticks = 0;
-  if (millisec == osWaitForever) {
-    ticks = portMAX_DELAY;
-  }
-  else if (millisec != 0) {
-    ticks = millisec / portTICK_PERIOD_MS;
-    if (ticks == 0) {
-      ticks = 1;
-    }
-  }  
-  
-  if (inHandlerMode())
-  {
-    ret.status = osErrorISR;  /*Not allowed in ISR*/
-  }
-  else
-  {
-    if(xTaskNotifyWait( 0,(uint32_t) signals, (uint32_t *)&ret.value.signals, ticks) != pdTRUE)
-    {
-      if(ticks == 0)  ret.status = osOK;
-      else  ret.status = osEventTimeout;
-    }
-    else if(ret.value.signals >= 0x80000000)
-    {
-      ret.status =  osErrorValue;     
-    }
-    else  ret.status =  osEventSignal;
-  }  
-  return ret;
-}
+osEvent osSignalWait (int32_t signals, uint32_t millisec);
 
 /****************************  Mutex Management ********************************/
 /**
@@ -930,7 +816,7 @@ osMessageQId osMessageCreate (const osMessageQDef_t *queue_def, osThreadId threa
 {
   (void) thread_id;
   
-  return xQueueCreate(queue_def->queue_sz, queue_def->item_sz);
+  return xQueueCreate(queue_def->queue_sz, (uint32_t) sizeof(queue_def->item_sz));
 }
 
 /**
@@ -980,7 +866,6 @@ osEvent osMessageGet (osMessageQId queue_id, uint32_t millisec)
   osEvent event;
   
   event.def.message_id = queue_id;
-  event.value.v = 0;
   
   if (queue_id == NULL) {
     event.status = osErrorParameter;
@@ -1026,6 +911,8 @@ osEvent osMessageGet (osMessageQId queue_id, uint32_t millisec)
 #endif     /* Use Message Queues */
 
 /********************   Mail Queue Management Functions  ***********************/
+#if 0 /* Mail Queue Management Functions are not supported in this cmsis_os version, will be added in the next release  */
+
 #if (defined (osFeature_MailQ)  &&  (osFeature_MailQ != 0))  /* Use Mail Queues */
 
 
@@ -1219,9 +1106,13 @@ osStatus osMailFree (osMailQId queue_id, void *mail)
     return osErrorParameter;
   }
   
-  return osPoolFree(queue_id->pool, mail);
+  osPoolFree(queue_id->pool, mail);
+  
+  return osOK;
 }
 #endif  /* Use Mail Queues */
+#endif /* Mail Queue Management Functions are not supported in this cmsis_os version, will be added in the next release  */
+
 
 /*************************** Additional specific APIs to Free RTOS ************/
 /**
@@ -1362,16 +1253,16 @@ osStatus osThreadResumeAll (void)
 /**
 * @brief  Delay a task until a specified time
 * @param   PreviousWakeTime   Pointer to a variable that holds the time at which the 
-*          task was last unblocked. PreviousWakeTime must be initialised with the current time
-*          prior to its first use (PreviousWakeTime = osKernelSysTick() )
+*          task was last unblocked.
 * @param   millisec    time delay value
 * @retval  status code that indicates the execution status of the function.
 */
-osStatus osDelayUntil (uint32_t *PreviousWakeTime, uint32_t millisec)
+osStatus osDelayUntil (uint32_t PreviousWakeTime, uint32_t millisec)
 {
 #if INCLUDE_vTaskDelayUntil
   TickType_t ticks = (millisec / portTICK_PERIOD_MS);
-  vTaskDelayUntil((TickType_t *) PreviousWakeTime, ticks ? ticks : 1);
+  TickType_t previouswake = (TickType_t) PreviousWakeTime; 
+  vTaskDelayUntil(&previouswake, ticks ? ticks : 1);
   
   return osOK;
 #else

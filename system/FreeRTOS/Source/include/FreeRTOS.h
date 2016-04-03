@@ -1,8 +1,22 @@
 /*
-    FreeRTOS V8.2.1 - Copyright (C) 2015 Real Time Engineers Ltd.
+    FreeRTOS V8.1.2 - Copyright (C) 2014 Real Time Engineers Ltd.
     All rights reserved
 
     VISIT http://www.FreeRTOS.org TO ENSURE YOU ARE USING THE LATEST VERSION.
+
+    ***************************************************************************
+     *                                                                       *
+     *    FreeRTOS provides completely free yet professionally developed,    *
+     *    robust, strictly quality controlled, supported, and cross          *
+     *    platform software that has become a de facto standard.             *
+     *                                                                       *
+     *    Help yourself get started quickly and support the FreeRTOS         *
+     *    project by purchasing a FreeRTOS tutorial book, reference          *
+     *    manual, or both from: http://www.FreeRTOS.org/Documentation        *
+     *                                                                       *
+     *    Thank you!                                                         *
+     *                                                                       *
+    ***************************************************************************
 
     This file is part of the FreeRTOS distribution.
 
@@ -10,55 +24,37 @@
     the terms of the GNU General Public License (version 2) as published by the
     Free Software Foundation >>!AND MODIFIED BY!<< the FreeRTOS exception.
 
-    ***************************************************************************
     >>!   NOTE: The modification to the GPL is included to allow you to     !<<
     >>!   distribute a combined work that includes FreeRTOS without being   !<<
     >>!   obliged to provide the source code for proprietary components     !<<
     >>!   outside of the FreeRTOS kernel.                                   !<<
-    ***************************************************************************
 
     FreeRTOS is distributed in the hope that it will be useful, but WITHOUT ANY
     WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-    FOR A PARTICULAR PURPOSE.  Full license text is available on the following
+    FOR A PARTICULAR PURPOSE.  Full license text is available from the following
     link: http://www.freertos.org/a00114.html
 
+    1 tab == 4 spaces!
+
     ***************************************************************************
      *                                                                       *
-     *    FreeRTOS provides completely free yet professionally developed,    *
-     *    robust, strictly quality controlled, supported, and cross          *
-     *    platform software that is more than just the market leader, it     *
-     *    is the industry's de facto standard.                               *
+     *    Having a problem?  Start by reading the FAQ "My application does   *
+     *    not run, what could be wrong?"                                     *
      *                                                                       *
-     *    Help yourself get started quickly while simultaneously helping     *
-     *    to support the FreeRTOS project by purchasing a FreeRTOS           *
-     *    tutorial book, reference manual, or both:                          *
-     *    http://www.FreeRTOS.org/Documentation                              *
+     *    http://www.FreeRTOS.org/FAQHelp.html                               *
      *                                                                       *
     ***************************************************************************
 
-    http://www.FreeRTOS.org/FAQHelp.html - Having a problem?  Start by reading
-    the FAQ page "My application does not run, what could be wrong?".  Have you
-    defined configASSERT()?
-
-    http://www.FreeRTOS.org/support - In return for receiving this top quality
-    embedded software for free we request you assist our global community by
-    participating in the support forum.
-
-    http://www.FreeRTOS.org/training - Investing in training allows your team to
-    be as productive as possible as early as possible.  Now you can receive
-    FreeRTOS training directly from Richard Barry, CEO of Real Time Engineers
-    Ltd, and the world's leading authority on the world's leading RTOS.
+    http://www.FreeRTOS.org - Documentation, books, training, latest versions,
+    license and Real Time Engineers Ltd. contact details.
 
     http://www.FreeRTOS.org/plus - A selection of FreeRTOS ecosystem products,
     including FreeRTOS+Trace - an indispensable productivity tool, a DOS
     compatible FAT file system, and our tiny thread aware UDP/IP stack.
 
-    http://www.FreeRTOS.org/labs - Where new FreeRTOS products go to incubate.
-    Come and try FreeRTOS+TCP, our new open source TCP/IP stack for FreeRTOS.
-
-    http://www.OpenRTOS.com - Real Time Engineers ltd. license FreeRTOS to High
-    Integrity Systems ltd. to sell under the OpenRTOS brand.  Low cost OpenRTOS
-    licenses offer ticketed support, indemnification and commercial middleware.
+    http://www.OpenRTOS.com - Real Time Engineers ltd license FreeRTOS to High
+    Integrity Systems to sell under the OpenRTOS brand.  Low cost OpenRTOS
+    licenses offer ticketed support, indemnification and middleware.
 
     http://www.SafeRTOS.com - High Integrity Systems also provide a safety
     engineered and independently SIL3 certified version for use in safety and
@@ -129,6 +125,10 @@ extern "C" {
 	#error Missing definition:  configUSE_TICK_HOOK must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
 #endif
 
+#ifndef configUSE_CO_ROUTINES
+	#error  Missing definition:  configUSE_CO_ROUTINES must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
+#endif
+
 #ifndef INCLUDE_vTaskPrioritySet
 	#error Missing definition:  INCLUDE_vTaskPrioritySet must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
 #endif
@@ -157,18 +157,14 @@ extern "C" {
 	#error Missing definition:  configUSE_16_BIT_TICKS must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
 #endif
 
-#ifndef configMAX_PRIORITIES
-	#error configMAX_PRIORITIES must be defined to be greater than or equal to 1.
-#endif
-
-#ifndef configUSE_CO_ROUTINES
-	#define configUSE_CO_ROUTINES 0
-#endif
-
 #if configUSE_CO_ROUTINES != 0
 	#ifndef configMAX_CO_ROUTINE_PRIORITIES
 		#error configMAX_CO_ROUTINE_PRIORITIES must be greater than or equal to 1.
 	#endif
+#endif
+
+#ifndef configMAX_PRIORITIES
+	#error configMAX_PRIORITIES must be defined to be greater than or equal to 1.
 #endif
 
 #ifndef INCLUDE_xTaskGetIdleTaskHandle
@@ -193,10 +189,6 @@ extern "C" {
 
 #ifndef configUSE_APPLICATION_TASK_TAG
 	#define configUSE_APPLICATION_TASK_TAG 0
-#endif
-
-#ifndef configNUM_THREAD_LOCAL_STORAGE_POINTERS
-	#define configNUM_THREAD_LOCAL_STORAGE_POINTERS 0
 #endif
 
 #ifndef INCLUDE_uxTaskGetStackHighWaterMark
@@ -719,45 +711,12 @@ extern "C" {
 	#define mtCOVERAGE_TEST_MARKER()
 #endif
 
-#ifndef mtCOVERAGE_TEST_DELAY
-	#define mtCOVERAGE_TEST_DELAY()
-#endif
-
 #ifndef portASSERT_IF_IN_ISR
 	#define portASSERT_IF_IN_ISR()
 #endif
 
 #ifndef configUSE_PORT_OPTIMISED_TASK_SELECTION
 	#define configUSE_PORT_OPTIMISED_TASK_SELECTION 0
-#endif
-
-#ifndef configAPPLICATION_ALLOCATED_HEAP
-	#define configAPPLICATION_ALLOCATED_HEAP 0
-#endif
-
-#ifndef configUSE_TASK_NOTIFICATIONS
-	#define configUSE_TASK_NOTIFICATIONS 1
-#endif
-
-#ifndef portTICK_TYPE_IS_ATOMIC
-	#define portTICK_TYPE_IS_ATOMIC 0
-#endif
-
-#if( portTICK_TYPE_IS_ATOMIC == 0 )
-	/* Either variables of tick type cannot be read atomically, or
-	portTICK_TYPE_IS_ATOMIC was not set - map the critical sections used when
-	the tick count is returned to the standard critical section macros. */
-	#define portTICK_TYPE_ENTER_CRITICAL() portENTER_CRITICAL()
-	#define portTICK_TYPE_EXIT_CRITICAL() portEXIT_CRITICAL()
-	#define portTICK_TYPE_SET_INTERRUPT_MASK_FROM_ISR() portSET_INTERRUPT_MASK_FROM_ISR()
-	#define portTICK_TYPE_CLEAR_INTERRUPT_MASK_FROM_ISR( x ) portCLEAR_INTERRUPT_MASK_FROM_ISR( ( x ) )
-#else
-	/* The tick type can be read atomically, so critical sections used when the
-	tick count is returned can be defined away. */
-	#define portTICK_TYPE_ENTER_CRITICAL()
-	#define portTICK_TYPE_EXIT_CRITICAL()
-	#define portTICK_TYPE_SET_INTERRUPT_MASK_FROM_ISR() 0
-	#define portTICK_TYPE_CLEAR_INTERRUPT_MASK_FROM_ISR( x ) ( void ) x
 #endif
 
 /* Definitions to allow backward compatibility with FreeRTOS versions prior to

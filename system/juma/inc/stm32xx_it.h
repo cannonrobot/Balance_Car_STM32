@@ -70,7 +70,7 @@ void PendSV_Handler(void);
 void SysTick_Handler(void);
 void BNRG_SPI_EXTI_IRQHandler(void);
 void PUSH_BUTTON_EXTI_IRQHandler(void);
-
+extern void (*EXTI0_IRQFUNC)(void);
 /**
  * @}
  */

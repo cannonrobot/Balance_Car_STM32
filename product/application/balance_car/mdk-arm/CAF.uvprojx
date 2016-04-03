@@ -433,6 +433,16 @@
               <FileType>5</FileType>
               <FilePath>..\FreeRTOSConfig.h</FilePath>
             </File>
+            <File>
+              <FileName>imu_sensor_fusion_9-axis.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\imu_sensor_fusion_9-axis.c</FilePath>
+            </File>
+            <File>
+              <FileName>control.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\control.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -484,9 +494,9 @@
               <FilePath>..\..\..\..\system\juma\src\imu_sensor.c</FilePath>
             </File>
             <File>
-              <FileName>imu_sensor_fusion.c</FileName>
+              <FileName>juma_sensor.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\system\juma\src\imu_sensor_fusion.c</FilePath>
+              <FilePath>..\..\..\..\system\juma\src\juma_sensor.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1315,6 +1325,16 @@
               <FileType>5</FileType>
               <FilePath>..\FreeRTOSConfig.h</FilePath>
             </File>
+            <File>
+              <FileName>imu_sensor_fusion_9-axis.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\imu_sensor_fusion_9-axis.c</FilePath>
+            </File>
+            <File>
+              <FileName>control.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\control.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1366,9 +1386,9 @@
               <FilePath>..\..\..\..\system\juma\src\imu_sensor.c</FilePath>
             </File>
             <File>
-              <FileName>imu_sensor_fusion.c</FileName>
+              <FileName>juma_sensor.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\system\juma\src\imu_sensor_fusion.c</FilePath>
+              <FilePath>..\..\..\..\system\juma\src\juma_sensor.c</FilePath>
             </File>
           </Files>
         </Group>

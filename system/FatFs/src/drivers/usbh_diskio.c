@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    usbh_diskio.c 
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    08-May-2015
+  * @version V1.2.1
+  * @date    20-November-2014
   * @brief   USB Key Disk I/O driver.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2014 STMicroelectronics</center></h2>
   *
   * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
   * You may not use this file except in compliance with the License.
@@ -33,25 +33,21 @@
 /* Private define ------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 extern USBH_HandleTypeDef  HOST_HANDLE;
-#if _USE_BUFF_WO_ALIGNMENT == 0
-/* Local buffer use to handle buffer not aligned 32bits*/
-static DWORD scratch[_MAX_SS / 4];
-#endif
 
 /* Private function prototypes -----------------------------------------------*/
-DSTATUS USBH_initialize (BYTE);
-DSTATUS USBH_status (BYTE);
-DRESULT USBH_read (BYTE, BYTE*, DWORD, UINT);
+DSTATUS USBH_initialize (void);
+DSTATUS USBH_status (void);
+DRESULT USBH_read (BYTE*, DWORD, UINT);
 
 #if _USE_WRITE == 1
-  DRESULT USBH_write (BYTE, const BYTE*, DWORD, UINT);
+  DRESULT USBH_write (const BYTE*, DWORD, UINT);
 #endif /* _USE_WRITE == 1 */
 
 #if _USE_IOCTL == 1
-  DRESULT USBH_ioctl (BYTE, BYTE, void*);
+  DRESULT USBH_ioctl (BYTE, void*);
 #endif /* _USE_IOCTL == 1 */
   
-const Diskio_drvTypeDef  USBH_Driver =
+Diskio_drvTypeDef  USBH_Driver =
 {
   USBH_initialize,
   USBH_status,
@@ -68,24 +64,24 @@ const Diskio_drvTypeDef  USBH_Driver =
 
 /**
   * @brief  Initializes a Drive
-  * @param  lun : lun id
+  * @param  None
   * @retval DSTATUS: Operation status
   */
-DSTATUS USBH_initialize(BYTE lun)
+DSTATUS USBH_initialize(void)
 {
   return RES_OK;
 }
 
 /**
   * @brief  Gets Disk Status
-  * @param  lun : lun id
+  * @param  None
   * @retval DSTATUS: Operation status
   */
-DSTATUS USBH_status(BYTE lun)
+DSTATUS USBH_status(void)
 {
   DRESULT res = RES_ERROR;
   
-  if(USBH_MSC_UnitIsReady(&HOST_HANDLE, lun))
+  if(USBH_MSC_UnitIsReady(&HOST_HANDLE, 0))
   {
     res = RES_OK;
   }
@@ -99,24 +95,23 @@ DSTATUS USBH_status(BYTE lun)
 
 /**
   * @brief  Reads Sector(s) 
-  * @param  lun : lun id
   * @param  *buff: Data buffer to store read data
   * @param  sector: Sector address (LBA)
   * @param  count: Number of sectors to read (1..128)
   * @retval DRESULT: Operation result
   */
-DRESULT USBH_read(BYTE lun, BYTE *buff, DWORD sector, UINT count)
+DRESULT USBH_read(BYTE *buff, DWORD sector, UINT count)
 {
   DRESULT res = RES_ERROR;
   MSC_LUNTypeDef info;
   USBH_StatusTypeDef  status = USBH_OK;
-
+  DWORD scratch [_MAX_SS / 4];
+  
   if ((DWORD)buff & 3) /* DMA Alignment issue, do single up to aligned buffer */
   {
-#if _USE_BUFF_WO_ALIGNMENT == 0
     while ((count--)&&(status == USBH_OK))
     {
-      status = USBH_MSC_Read(&HOST_HANDLE, lun, sector + count, (uint8_t *)scratch, 1);
+      status = USBH_MSC_Read(&HOST_HANDLE, 0, sector + count, (uint8_t *)scratch, 1);
       if(status == USBH_OK)
       {
         memcpy (&buff[count * _MAX_SS] ,scratch, _MAX_SS);
@@ -126,13 +121,10 @@ DRESULT USBH_read(BYTE lun, BYTE *buff, DWORD sector, UINT count)
         break;
       }
     }
-#else
-    return res;
-#endif
   }
   else
   {
-    status = USBH_MSC_Read(&HOST_HANDLE, lun, sector, buff, count);
+    status = USBH_MSC_Read(&HOST_HANDLE, 0, sector, buff, count);
   }
   
   if(status == USBH_OK)
@@ -141,7 +133,7 @@ DRESULT USBH_read(BYTE lun, BYTE *buff, DWORD sector, UINT count)
   }
   else
   {
-    USBH_MSC_GetLUNInfo(&HOST_HANDLE, lun, &info); 
+    USBH_MSC_GetLUNInfo(&HOST_HANDLE, 0, &info); 
     
     switch (info.sense.asc)
     {
@@ -163,39 +155,35 @@ DRESULT USBH_read(BYTE lun, BYTE *buff, DWORD sector, UINT count)
 
 /**
   * @brief  Writes Sector(s)
-  * @param  lun : lun id 
   * @param  *buff: Data to be written
   * @param  sector: Sector address (LBA)
   * @param  count: Number of sectors to write (1..128)
   * @retval DRESULT: Operation result
   */
 #if _USE_WRITE == 1
-DRESULT USBH_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count)
+DRESULT USBH_write(const BYTE *buff, DWORD sector, UINT count)
 {
   DRESULT res = RES_ERROR; 
   MSC_LUNTypeDef info;
   USBH_StatusTypeDef  status = USBH_OK;  
-
+  DWORD scratch [_MAX_SS / 4];  
+  
   if ((DWORD)buff & 3) /* DMA Alignment issue, do single up to aligned buffer */
   {
-#if _USE_BUFF_WO_ALIGNMENT == 0
     while (count--)
     {
       memcpy (scratch, &buff[count * _MAX_SS], _MAX_SS);
       
-      status = USBH_MSC_Write(&HOST_HANDLE, lun, sector + count, (BYTE *)scratch, 1) ;
+      status = USBH_MSC_Write(&HOST_HANDLE, 0, sector + count, (BYTE *)scratch, 1) ;
       if(status == USBH_FAIL)
       {
         break;
       }
     }
-#else
-    return res;
-#endif
   }
   else
   {
-    status = USBH_MSC_Write(&HOST_HANDLE, lun, sector, (BYTE *)buff, count);
+    status = USBH_MSC_Write(&HOST_HANDLE, 0, sector, (BYTE *)buff, count);
   }
   
   if(status == USBH_OK)
@@ -204,7 +192,7 @@ DRESULT USBH_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count)
   }
   else
   {
-    USBH_MSC_GetLUNInfo(&HOST_HANDLE, lun, &info); 
+    USBH_MSC_GetLUNInfo(&HOST_HANDLE, 0, &info); 
     
     switch (info.sense.asc)
     {
@@ -232,13 +220,12 @@ DRESULT USBH_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count)
 
 /**
   * @brief  I/O control operation
-  * @param  lun : lun id
   * @param  cmd: Control code
   * @param  *buff: Buffer to send/receive control data
   * @retval DRESULT: Operation result
   */
 #if _USE_IOCTL == 1
-DRESULT USBH_ioctl(BYTE lun, BYTE cmd, void *buff)
+DRESULT USBH_ioctl(BYTE cmd, void *buff)
 {
   DRESULT res = RES_ERROR;
   MSC_LUNTypeDef info;
@@ -252,7 +239,7 @@ DRESULT USBH_ioctl(BYTE lun, BYTE cmd, void *buff)
     
   /* Get number of sectors on the disk (DWORD) */  
   case GET_SECTOR_COUNT : 
-    if(USBH_MSC_GetLUNInfo(&HOST_HANDLE, lun, &info) == USBH_OK)
+    if(USBH_MSC_GetLUNInfo(&HOST_HANDLE, 0, &info) == USBH_OK)
     {
       *(DWORD*)buff = info.capacity.block_nbr;
       res = RES_OK;
@@ -265,7 +252,7 @@ DRESULT USBH_ioctl(BYTE lun, BYTE cmd, void *buff)
     
   /* Get R/W sector size (WORD) */  
   case GET_SECTOR_SIZE :	
-    if(USBH_MSC_GetLUNInfo(&HOST_HANDLE, lun, &info) == USBH_OK)
+    if(USBH_MSC_GetLUNInfo(&HOST_HANDLE, 0, &info) == USBH_OK)
     {
       *(DWORD*)buff = info.capacity.block_size;
       res = RES_OK;
@@ -279,7 +266,7 @@ DRESULT USBH_ioctl(BYTE lun, BYTE cmd, void *buff)
     /* Get erase block size in unit of sector (DWORD) */ 
   case GET_BLOCK_SIZE : 
     
-    if(USBH_MSC_GetLUNInfo(&HOST_HANDLE, lun, &info) == USBH_OK)
+    if(USBH_MSC_GetLUNInfo(&HOST_HANDLE, 0, &info) == USBH_OK)
     {
       *(DWORD*)buff = info.capacity.block_size;
       res = RES_OK;

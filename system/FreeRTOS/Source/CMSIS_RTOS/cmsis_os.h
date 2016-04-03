@@ -26,7 +26,7 @@
  *  
  *----------------------------------------------------------------------------
  *
- * Portions COPYRIGHT 2015 STMicroelectronics
+ * Portions COPYRIGHT 2014 STMicroelectronics
  * Portions Copyright (c) 2013 ARM LIMITED
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
@@ -57,7 +57,7 @@
   ******************************************************************************
   * @file    cmsis_os.h
   * @author  MCD Application Team
-  * @date    27-March-2015
+  * @date    25-December-2014
   * @brief   Header of cmsis_os.c
   *          A new set of APIs are added in addition to existing ones, these APIs 
   *          are specific to FreeRTOS.
@@ -200,7 +200,7 @@ used throughout the whole project.
 #define osFeature_MessageQ     1       ///< Message Queues:  1=available, 0=not available
 #define osFeature_Signals      8       ///< maximum number of Signal Flags available per thread
 #define osFeature_Semaphore    1      ///< osFeature_Semaphore function: 1=available, 0=not available
-#define osFeature_Wait         0       ///< osWait function: 1=available, 0=not available
+#define osFeature_Wait         1       ///< osWait function: 1=available, 0=not available
 #define osFeature_SysTick      1       ///< osKernelSysTick functions: 1=available, 0=not available
 
 #ifdef  __cplusplus
@@ -545,7 +545,7 @@ osStatus osTimerDelete (osTimerId timer_id);
 /// Set the specified Signal Flags of an active thread.
 /// \param[in]     thread_id     thread ID obtained by \ref osThreadCreate or \ref osThreadGetId.
 /// \param[in]     signals       specifies the signal flags of the thread that should be set.
-/// \return osOK if successful, osErrorOS if failed.
+/// \return previous signal flags of the specified thread or 0x80000000 in case of incorrect parameters.
 /// \note MUST REMAIN UNCHANGED: \b osSignalSet shall be consistent in every CMSIS-RTOS.
 int32_t osSignalSet (osThreadId thread_id, int32_t signals);
 
@@ -770,6 +770,8 @@ osEvent osMessageGet (osMessageQId queue_id, uint32_t millisec);
 
 //  ==== Mail Queue Management Functions ====
 
+#if 0 /* Mail Queue Management Functions are not supported in this cmsis_os version, will be added in the next release  */
+
 #if (defined (osFeature_MailQ)  &&  (osFeature_MailQ != 0))     // Mail Queues available
 
 /// \brief Create a Mail Queue Definition.
@@ -784,7 +786,7 @@ extern struct os_mailQ_cb *os_mailQ_cb_##name \
 extern osMailQDef_t os_mailQ_def_##name
 #else                            // define the object
 #define osMailQDef(name, queue_sz, type) \
-struct os_mailQ_cb *os_mailQ_cb_##name; \
+struct os_mailQ_cb *os_mailQ_cb_##name \
 const osMailQDef_t os_mailQ_def_##name =  \
 { (queue_sz), sizeof (type), (&os_mailQ_cb_##name) }
 #endif
@@ -839,6 +841,8 @@ osEvent osMailGet (osMailQId queue_id, uint32_t millisec);
 osStatus osMailFree (osMailQId queue_id, void *mail);
 
 #endif  // Mail Queues available
+#endif /* Mail Queue Management Functions are not supported in this cmsis_os version, will be added in the next release  */
+
 
 /*************************** Additional specific APIs to Free RTOS ************/
 /**
@@ -897,12 +901,11 @@ osStatus osThreadResumeAll (void);
 /**
 * @brief  Delay a task until a specified time
 * @param   PreviousWakeTime   Pointer to a variable that holds the time at which the 
-*          task was last unblocked. PreviousWakeTime must be initialised with the current time
-*          prior to its first use (PreviousWakeTime = osKernelSysTick() )
+*          task was last unblocked.
 * @param   millisec    time delay value
 * @retval  status code that indicates the execution status of the function.
 */
-osStatus osDelayUntil (uint32_t *PreviousWakeTime, uint32_t millisec);
+osStatus osDelayUntil (uint32_t PreviousWakeTime, uint32_t millisec);
 
 /**
 * @brief   Lists all the current threads, along with their current state 

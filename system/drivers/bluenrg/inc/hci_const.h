@@ -23,7 +23,7 @@
  * Maximum payload of HCI commands that can be sent. Change this value if needed.
  * This value can be up to 255.
  */
-#define HCI_MAX_PAYLOAD_SIZE 128
+#define HCI_MAX_PAYLOAD_SIZE 30
 
 /* HCI Packet types */
 #define HCI_COMMAND_PKT		0x01
