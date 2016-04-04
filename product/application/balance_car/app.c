@@ -41,7 +41,10 @@ extern float 	turn_target_orientaion;
 extern int8_t	trun_mode;
 	
 	extern int fifo_length;
-int temp=0;//程序调试使用的全局变量
+	
+	extern TIM_HandleTypeDef        TimHandleT2;//舵机
+extern   TIM_HandleTypeDef        TimHandleT3;//舵机
+int temp=450;//程序调试使用的全局变量
 int temp2=0;
  xQueueHandle  TXQueue;
 typedef struct 
@@ -92,6 +95,13 @@ static void mainThread(const void *argument){
 			vTaskDelayUntil( &xLastWakeTime, xFrequency );
 	//		   preTick = HAL_GetTick();
 			Get_Adc(&adc_value);	
+			
+			temp++;
+			if(temp>=750)temp=150;
+		//	if(temp>=550)temp=0;
+			 HAL_TIM_PWM_Pulse(&TimHandleT2,TIM_CHANNEL_3,temp);
+			HAL_TIM_PWM_Pulse(&TimHandleT3,TIM_CHANNEL_2,temp);
+			HAL_TIM_PWM_Pulse(&TimHandleT3,TIM_CHANNEL_3,temp);
 			
 	//		nowTick = HAL_GetTick();
 	//		cha=nowTick-preTick;				
@@ -173,7 +183,7 @@ void on_ready(void)
 	 //HAL_Delay(100);
 		Motor_Pwm_Init();
 		Encoder_Init();         
-	//	Steer_Pwm_Init();
+	Steer_Pwm_Init();
 	Adc_Init();
 //SD_Init();
  
@@ -221,9 +231,9 @@ return:0成功，1错误
 
 
 uint8_t Checksum(uint8_t length, uint8_t* value){
-	uint8_t check=0;
-	for(int i=0;i<length;i++)	check+=*(value+1+i);
-			if(check!=*(value+1+length))return 0;
+	int  check=0;
+	for(int i=0;i<length;i++)	check+=*(value+i);
+			if(*(value+length)==(uint8_t)check)return 0;
 			else return 1;	
 }
 
@@ -241,7 +251,7 @@ void ble_device_on_message(uint8_t type, uint16_t length, uint8_t* value)
 		
 		switch (*value){
 		case 0x01://遥控ID
-			if(Checksum(4,value))return;
+			if(Checksum(5,value))return;
 			p8Data[0]=*(value+1);//X轴
 			p8Data[1]=*(value+2);//Y轴
 			p8Data[2]=*(value+3);//模式控制字1
@@ -259,7 +269,7 @@ void ble_device_on_message(uint8_t type, uint16_t length, uint8_t* value)
 			
 			break;
 		case 0x09://修改参数ID
-			if(Checksum(16,value))return;
+			if(Checksum(17,value))return;
 			for (int i = 0; i < 8; i++) {
 				p16Data[i] = (((int16_t)*(value +i* 2 + 1)) << 8) + (int16_t)*(value+i*2+2);
 			}
@@ -271,8 +281,8 @@ void ble_device_on_message(uint8_t type, uint16_t length, uint8_t* value)
 			Car_Angle_Center=	(float)p16Data[5]-20;
 			//ble_device_send((uint8_t)0x01,1,(uint8_t*)"Y");
 			RXMessage.type=0x01;
-			RXMessage.length=1;
-			memcpy(RXMessage.value, (uint8_t*)"Y", RXMessage.length);
+			RXMessage.length=2;
+			memcpy(RXMessage.value, (uint8_t*)"YY", RXMessage.length);
 			if( TXQueue != 0 )
 			{
 			xQueueSend( TXQueue, ( void* )&RXMessage, 0 );  
@@ -280,7 +290,7 @@ void ble_device_on_message(uint8_t type, uint16_t length, uint8_t* value)
 			
 			break;
 		case 0x08://请求原始数据
-			if(Checksum(1,value))return;
+		
 		
 			p16Data[0]=Angle_Kp;
 			p16Data[1]=Angle_Kd;
@@ -295,6 +305,7 @@ void ble_device_on_message(uint8_t type, uint16_t length, uint8_t* value)
        send_temp[i+1]=(uint8_t)(p16Data[i/2]>>(8-(i%2)*8));
 				send_temp[1+16]+=send_temp[i+1];
        }
+			send_temp[1+16]+=send_temp[0];
 			send_temp[0]=7;//APP接收原始数据的ID
 			//ble_device_send((uint8_t)0x01,18,(uint8_t*)send_temp);
 			

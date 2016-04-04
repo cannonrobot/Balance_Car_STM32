@@ -224,7 +224,7 @@ void Motor_Pwm_Init(void){
   HAL_TIM_PWM_Init(&TimHandleT4);
 
   pwmConfig.OCMode=TIM_OCMODE_PWM1;
-  pwmConfig.Pulse=700;
+  pwmConfig.Pulse=0;
   HAL_TIM_PWM_ConfigChannel(&TimHandleT4, &pwmConfig, TIM_CHANNEL_3);
    HAL_TIM_PWM_ConfigChannel(&TimHandleT4, &pwmConfig, TIM_CHANNEL_4);
   HAL_TIM_PWM_Start(&TimHandleT4, TIM_CHANNEL_3);
@@ -295,7 +295,7 @@ void Steer_Pwm_Init(void){
   //TIM3
 	
   TimHandleT3.Instance = TIM3;
-  TimHandleT3.Init.Period =  1000 - 1;;
+  TimHandleT3.Init.Period =  1000 - 1;
   TimHandleT3.Init.Prescaler = 280-1;
   TimHandleT3.Init.ClockDivision = 0;
   TimHandleT3.Init.CounterMode = TIM_COUNTERMODE_UP;  
@@ -307,6 +307,28 @@ void Steer_Pwm_Init(void){
   HAL_TIM_PWM_ConfigChannel(&TimHandleT3, &pwmConfig, TIM_CHANNEL_3);
   HAL_TIM_PWM_Start(&TimHandleT3, TIM_CHANNEL_3);
 	HAL_TIM_PWM_Start(&TimHandleT3, TIM_CHANNEL_2);
+	
+	
+	// __HAL_RCC_GPIOB_CLK_ENABLE();
+	 __HAL_RCC_TIM2_CLK_ENABLE();
+	  GPIO_InitStruct.Pin = GPIO_PIN_10;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
+  GPIO_InitStruct.Alternate = GPIO_AF1_TIM2;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+	
+	 TimHandleT2.Instance = TIM2;
+  TimHandleT2.Init.Period =  1000 - 1;
+  TimHandleT2.Init.Prescaler = 280-1;
+  TimHandleT2.Init.ClockDivision = 0;
+  TimHandleT2.Init.CounterMode = TIM_COUNTERMODE_UP;  
+  HAL_TIM_PWM_Init(&TimHandleT2);
+
+  pwmConfig.OCMode=TIM_OCMODE_PWM1;
+  pwmConfig.Pulse=450;
+  HAL_TIM_PWM_ConfigChannel(&TimHandleT2, &pwmConfig, TIM_CHANNEL_3);
+  HAL_TIM_PWM_Start(&TimHandleT2, TIM_CHANNEL_3);
   }
 
 /**
