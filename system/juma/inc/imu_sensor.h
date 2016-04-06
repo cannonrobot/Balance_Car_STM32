@@ -126,6 +126,8 @@ void on_imu_sensor_data(imu_sensor_data_t* data);
 
 imu_status_t imu_sensor_read_data_from_fifo(imu_sensor_raw_data_t* Sensor_Raw_Data,imu_sensor_data_t* Sensor_Data,imu_euler_data_t* Sensor_Euler_Angle);
 
+imu_status_t my_imu_sensor_read_data_from_fifo(imu_sensor_raw_data_t* Sensor_Raw_Data,imu_sensor_data_t* Sensor_Data,imu_euler_data_t* Sensor_Euler_Angle);
+
 imu_status_t imu_sensor_filter(void);
 
 #endif /*_IMU_SENSOR_H_*/

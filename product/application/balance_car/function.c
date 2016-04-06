@@ -296,7 +296,7 @@ void Steer_Pwm_Init(void){
 	
   TimHandleT3.Instance = TIM3;
   TimHandleT3.Init.Period =  1000 - 1;
-  TimHandleT3.Init.Prescaler = 280-1;
+  TimHandleT3.Init.Prescaler = 840-1;
   TimHandleT3.Init.ClockDivision = 0;
   TimHandleT3.Init.CounterMode = TIM_COUNTERMODE_UP;  
   HAL_TIM_PWM_Init(&TimHandleT3);
@@ -320,7 +320,7 @@ void Steer_Pwm_Init(void){
 	
 	 TimHandleT2.Instance = TIM2;
   TimHandleT2.Init.Period =  1000 - 1;
-  TimHandleT2.Init.Prescaler = 280-1;
+  TimHandleT2.Init.Prescaler = 840-1;
   TimHandleT2.Init.ClockDivision = 0;
   TimHandleT2.Init.CounterMode = TIM_COUNTERMODE_UP;  
   HAL_TIM_PWM_Init(&TimHandleT2);

@@ -140,8 +140,8 @@ int Turn_Control(int8_t Mode,int16_t Turn_Speed,float Now_Orientation,float Targ
 
 void Car_Control(void){
 
-	imu_sensor_read_data_from_fifo(&sensor_saw_data,&sensor_data,&sensor_euler_angle);
-	
+	//imu_sensor_read_data_from_fifo(&sensor_saw_data,&sensor_data,&sensor_euler_angle);
+	my_imu_sensor_read_data_from_fifo(&sensor_saw_data,&sensor_data,&sensor_euler_angle);
 	motor_output_Angle =  Angle_Control_PD(sensor_euler_angle.pitch,Car_Angle_Center,sensor_data.gyro[0]);
 	motor_output_Turn  =  Turn_Control(trun_mode,turn_target_speed,sensor_euler_angle.yaw,turn_target_orientaion);
 	motor_output_Speed =  Speed_Control(speed_target);
