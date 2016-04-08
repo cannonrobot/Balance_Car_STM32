@@ -443,6 +443,11 @@
               <FileType>1</FileType>
               <FilePath>..\control.c</FilePath>
             </File>
+            <File>
+              <FileName>imu_sensor_fusion.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\juma\src\imu_sensor_fusion.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1255,7 +1260,7 @@
             <useXO>0</useXO>
             <VariousControls>
               <MiscControls>--C99 --gnu </MiscControls>
-              <Define>USE_HAL_DRIVER,STM32F401xE,USE_STM32F4XX_NUCLEO,ENABLE_SPI_FIX,BLUENRG_MS,RTC_LSE,CANNON_V2,SENSOR_FIFO,NO_PRINTF</Define>
+              <Define>USE_HAL_DRIVER,STM32F401xE,USE_STM32F4XX_NUCLEO,ENABLE_SPI_FIX,BLUENRG_MS,RTC_LSE,CANNON_V2,SENSOR_FIFO,NO_PRINTF,I2C_DMA_MODE</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\..\system\drivers\hts221;..\..\..\..\system\drivers\lps25h;..\..\..\..\system\drivers\lps25hb;..\..\..\..\system\drivers\lsm303agr;..\..\..\..\system\drivers\lsm6ds3;..\..\..\..\system\drivers\stm32f4xx_hal_driver\inc;..\..\..\..\system\drivers\common;..\..\..\..\system\drivers\bluenrg\inc;..\..\..\..\system\drivers\bluenrg\bluenrg_ms;..\..\..\..\system\bsp\nucleo;..\..\..\..\system\bsp\cannon_v2;..\..\..\..\system\juma\inc;..\..\..\..\system\cmiss\device\st\inc;..\..\..\..\system\cmiss\include;..\..\balance_car;..\..\..\..\system\FatFs\src;..\..\..\..\system\FatFs\src\drivers;..\..\..\..\system\FreeRTOS\Source\portable\RVDS\ARM_CM4F;..\..\..\..\system\FreeRTOS\Source\include;..\..\..\..\system\FreeRTOS\Source\CMSIS_RTOS</IncludePath>
             </VariousControls>
@@ -1334,6 +1339,11 @@
               <FileName>control.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\control.c</FilePath>
+            </File>
+            <File>
+              <FileName>imu_sensor_fusion.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\juma\src\imu_sensor_fusion.c</FilePath>
             </File>
           </Files>
         </Group>

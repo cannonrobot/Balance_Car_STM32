@@ -5,6 +5,9 @@
 #include "lsm303agr.h"
 #include "stm32f4xx_hal_msp.h"
 #include "bluenrg_sdk_api.h"
+#include "app.h"
+#include "math.h"
+#include "imu_sensor_fusion_9-axis.h"
 /*sensor feature*/
 #define IMU_SENSOR_FEATURE_ACC  0x01
 
@@ -25,6 +28,12 @@ extern IMU_6AXES_StatusTypeDef LSM6DS3_IO_Write( uint8_t* pBuffer, uint8_t Devic
     uint16_t NumByteToWrite );
 extern IMU_6AXES_StatusTypeDef LSM6DS3_IO_Read( uint8_t* pBuffer, uint8_t DeviceAddr, uint8_t RegisterAddr,
     uint16_t NumByteToRead );
+
+#ifdef I2C_DMA_MODE
+extern IMU_6AXES_StatusTypeDef LSM6DS3_IO_Read_DMA( uint8_t* pBuffer, uint8_t DeviceAddr, uint8_t RegisterAddr,
+        uint16_t NumByteToRead );
+	void imu_sensor_read_data_from_fifo_DMA(void);
+#endif
 extern void LSM6DS3_IO_ITConfig( void );
 
 enum _imu_status{
@@ -129,6 +138,8 @@ imu_status_t imu_sensor_read_data_from_fifo(imu_sensor_raw_data_t* Sensor_Raw_Da
 imu_status_t my_imu_sensor_read_data_from_fifo(imu_sensor_raw_data_t* Sensor_Raw_Data,imu_sensor_data_t* Sensor_Data,imu_euler_data_t* Sensor_Euler_Angle);
 
 imu_status_t imu_sensor_filter(void);
+
+void imu_sensor_dma_read_call_back(void);
 
 #endif /*_IMU_SENSOR_H_*/
 

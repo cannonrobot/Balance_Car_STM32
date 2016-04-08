@@ -13,6 +13,7 @@
 static void adv_name_generate(uint8_t* uni_name);
 
 
+AxesRaw_TypeDef XData,GData;
 #ifdef CANNON_V2
 char name[20] = "CANNON_V2";
 #endif
@@ -112,10 +113,10 @@ static void mainThread(const void *argument){
 //OutData[0] = sensor_euler_angle.pitch;
 OutData[0] =sensor_euler_angle.pitch*100;
 		//	OutData[1] =my_cnt;
-		OutData[1] =	sensor_saw_data.gyro[0];
+	//	OutData[1] =	sensor_saw_data.gyro[0];
 		//OutData[3] =	sensor_data.gyro[0]*100;
-				OutData[2] =	sensor_saw_data.gyro[1];
-						OutData[3] =	sensor_saw_data.gyro[2];
+		//		OutData[2] =	sensor_saw_data.acc[1];
+		//				OutData[3] =	sensor_saw_data.acc[0];
 //OutData[0] =motor_output_temp;
 //OutData[1] = turn_target_speed;
 //OutData[2] =motor_output_Speed;
@@ -124,14 +125,14 @@ OutData[0] =sensor_euler_angle.pitch*100;
 //OutData[3] = speed_target;
 //OutData[3] = cha;
 //	OutPut_Data();		
-		//BSP_IMU_6AXES_X_GetAxesRaw(&XData);
-	//BSP_IMU_6AXES_G_GetAxesRaw(&GData);
-	// LSM303AGR_MAG_Get_Raw_Magnetic((u8_t*)MData);
+	//	BSP_IMU_6AXES_X_GetAxesRaw(&XData);
+//	BSP_IMU_6AXES_G_GetAxesRaw(&GData);
+ //LSM303AGR_MAG_Get_Raw_Magnetic((u8_t*)MData);
 
 //OutData[0] = sensor_saw_data.acc[0];
-//OutData[1] = sensor_saw_data.acc[1];
-//OutData[2] = sensor_saw_data.gyro[0];
-//OutData[3] = sensor_saw_data.gyro[0];	
+OutData[1] = sensor_saw_data.acc[1];
+OutData[2] = sensor_saw_data.gyro[0];
+OutData[3] = sensor_saw_data.gyro[1];	
 
 	OutPut_Data();
 		}
@@ -175,11 +176,11 @@ void on_ready(void)
 
     imu_sensor_set_data_rate(&data_rate, LSM6DS3_XG_FIFO_MODE_CONTINUOUS_OVERWRITE);
 
-	  //imu_sensor_filter();
+	  imu_sensor_filter();
 	
     imu_sensor_start();
 
-	
+	 
 	 //HAL_Delay(100);
 		Motor_Pwm_Init();
 		Encoder_Init();         

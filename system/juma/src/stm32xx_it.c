@@ -53,7 +53,9 @@ extern RTC_HandleTypeDef RTCHandle;
 /** @addtogroup X-CUBE-BLE1_Applications
  *  @{
  */
-
+#ifdef I2C_DMA_MODE
+extern I2C_HandleTypeDef    I2C_EXPBD_Handle;
+#endif
 /** @addtogroup SensorDemo
  *  @{
  */
@@ -201,10 +203,19 @@ void EXTI0_IRQHandler(void)
    if(__HAL_GPIO_EXTI_GET_IT(MEMS_INT1_PIN) != RESET)
   {
     __HAL_GPIO_EXTI_CLEAR_IT(MEMS_INT1_PIN);
-    Car_Control();
+   // Car_Control();
+		imu_sensor_read_data_from_fifo_DMA();
 //    imu_sensor_read_data_from_fifo();
 //    printf("fifo interrupt \n");
   }
+}
+#endif
+
+#ifdef I2C_DMA_MODE
+//#ifdef I2C_DMA_MODE
+void DMA_STREAM_IRQHANDLER(void)
+{
+    HAL_DMA_IRQHandler(I2C_EXPBD_Handle.hdmarx);         
 }
 #endif
 

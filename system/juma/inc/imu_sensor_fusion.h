@@ -12,39 +12,9 @@ typedef struct {
     float w, x, y, z;
 } quat4f_t;
 
-typedef struct _sensor_fusion_angle_t{
- 
-   float pitch;
-   
-   float roll;
 
-   float yaw;
- 
-} sensor_fusion_angle_t;
 
-typedef struct _imu_sensor_fusion_1_context_t{
- 
-   float k_acc_1;
- 
-   float k_acc_2;
-  
-   float k_gyr_1;
- 
-   float k_gyr_2;
-  
-   float k_mag_1;
- 
-   float k_mag_2;
- 
-   float k_offset;
- 
-   float gyro_offset_x;
- 
-   float gyro_offset_y;
-  
-   float gyro_offset_z;
 
-} imu_sensor_fusion_1_context_t;
 
 typedef struct {
     uint32_t flags;
@@ -63,7 +33,6 @@ typedef struct {
 
 void complementary_filter(float acc_raw[3], float gyr_raw[3], float mag_raw[3], float *pitch, float *roll, float *yaw);
 
-void imu_sensor_fusion_1(imu_sensor_data_t* sensor_raw, sensor_fusion_angle_t* sensor_angle, imu_sensor_fusion_1_context_t* sensor_context);
 
 void gravity_filter_init(gravity_filter_context_t* cx);
 void gravity_filter_run(gravity_filter_context_t* cx, imu_sensor_data_t* sensor);

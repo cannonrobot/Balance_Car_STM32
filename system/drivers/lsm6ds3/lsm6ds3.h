@@ -78,7 +78,7 @@ extern "C" {
   * Read/write
   * Default value: 0x00
   * [7] FUNC_CFG_EN: Enable access to the embedded functions configuration registers (1) from address 02h to 32h. Default value: 0.
-  * [6:0] This bit must be set to ‘0’ for the correct operation of the device
+  * [6:0] This bit must be set to ??for the correct operation of the device
   * \endcode
 */
 #define  LSM6DS3_XG_FUNC_CFG_ACCESS                                      0x01
@@ -98,7 +98,7 @@ extern "C" {
   * \code
   * Read/write
   * Default value: 0x00
-  * [7:2] This bit must be set to ‘0’ for the correct operation of the device
+  * [7:2] This bit must be set to ??for the correct operation of the device
   * [1] HP_RST: Gyro digital HP filter reset. Default: 0
   * [1] SENSOR_SYNC_ENHP_RST: Enable sensor synchronization feature. Default 0
   * \endcode
@@ -123,7 +123,7 @@ extern "C" {
   * Default value: 0x00
   * [7] TIMER_PEDO_FIFO_EN: Enable Pedometer step counter and time stamp as 4th sensor FIFO data. Default: 0 disabled
   * [6] TIMER_PEDO_FIFO_DRDY : Pedometer FIFO write mode. Default: 0 disabled
-  * [5:4] This bit must be set to ‘0’ for the correct operation of the device
+  * [5:4] This bit must be set to ??for the correct operation of the device
   * [3:0] FTH_[11:8] FIFO threshold level setting(1). Default value: 0000
   * \endcode
 */
@@ -134,7 +134,7 @@ extern "C" {
   * \code
   * Read/write
   * Default value: 0x00
-  * [7:6] This bit must be set to ‘0’ for the correct operation of the device
+  * [7:6] This bit must be set to ??for the correct operation of the device
   * [5:3] DEC_FIFO_GYRO[2:0]: Gyro FIFO decimation setting. Default value: 000
   * [2:0] DEC_FIFO_XL[2:0]: XL FIFO decimation setting. Default value: 000
   * \endcode
@@ -146,7 +146,7 @@ extern "C" {
   * \code
   * Read/write
   * Default value: 0x00
-  * [7] This bit must be set to ‘0’ for the correct operation of the device
+  * [7] This bit must be set to ??for the correct operation of the device
   * [6] ONLY_HIGH_DATA :8 bit data storing in FIFO. Default: 0
   * [5:3] DEC_SLV1_FIFO[2:0] Second external sensor FIFO decimation setting. Default: 000
   * [2:0] DEC_SLV1_FIFO[2:0] First external sensor FIFO decimation setting. Default: 000
@@ -160,7 +160,7 @@ extern "C" {
   * \code
   * Read/write
   * Default value: 0x00
-  * [7] This bit must be set to ‘0’ for the correct operation of the device
+  * [7] This bit must be set to ??for the correct operation of the device
   * [6:3] ODR_FIFO_[3:0]: FIFO ODR selection. Default: 0000
   * [2:0] FIFO_MODE_[2:0] : FIFO mode selection bits. Default value: 000
   * \endcode
@@ -173,7 +173,7 @@ extern "C" {
   * \code
   * Read/write
   * Default value: 0x00
-  * [7:6] This bit must be set to ‘0’ for the correct operation of the device
+  * [7:6] This bit must be set to ??for the correct operation of the device
   * [5] SignX_G:  Pitch axis (X) Angular rate sign. Default value: 0
   * [5] SignY_G:  Roll axis (Y) Angular rate sign. Default value: 0
   * [5] SignZ_G:  Pitch axis (Z) Angular rate sign. Default value: 0
@@ -255,7 +255,7 @@ extern "C" {
   * [7] BW_SCAL_ODR: Accelerometer bandwidth selection. Default value: 0
   * [6] SLEEP_G: Gyroscope sleep mode enable. Default value: 0
   * [5] INT2_on_INT1: All interrupt signals available on INT1 pad enable. Default value: 0
-  * [4] This bit must be set to ‘0’ for the correct operation of the device
+  * [4] This bit must be set to ??for the correct operation of the device
   * [3] DRDY_MASK: Configuration 1(3) Data Available Enable bit. Default Value: 0
   * [2] I2C_disable Disable I2C interface. Default value: 0
   * [1] MODE3_EN Enable auxiliary SPI interface (Mode3, refer to Table 1.). Default value: 0
@@ -270,7 +270,7 @@ extern "C" {
   * \code
   * Read/write
   * Default value: 0x00
-  * [7:4] This bit must be set to ‘0’ for the correct operation of the device
+  * [7:4] This bit must be set to ??for the correct operation of the device
   * [3:2] ST_G[1:0]: Angular rate sensor Self Test Enable. Default value: 00
   * [1:0] ST_XL[1:0]: Linear acceleration sensor Self Test Enable. Default value: 00
   * \endcode
@@ -283,7 +283,7 @@ extern "C" {
   * \code
   * Read/write
   * Default value: 0x38
-  * [7:6] These bits must be set to ‘0’ for the correct operation of the device
+  * [7:6] These bits must be set to ??for the correct operation of the device
   * [5] Zen_G: Gyroscope’s Z-axis output enable. Default value: 1
   * [4] Yen_G: Gyroscope’s Y-axis output enable. Default value: 1
   * [3] Xen_G: Gyroscope’s X-axis output enable. Default value: 1
@@ -302,7 +302,7 @@ extern "C" {
   * Default value: 0x00
   * [7] DRDY_ON_INT1:Manage the DRDY signal on INT1 pad. Default: 0
   * [6] DATA_VALID_SEL_FIFO: Selection of FIFO data-valid signal. Default value: 0
-  * [5] This bit must be set to ‘0’ for the correct operation of the device
+  * [5] This bit must be set to ??for the correct operation of the device
   * [4] START_CONFIG: Sensor Hub trigger signal selection. Default value: 0
   * [3] PULL_UP_EN: Auxiliary I2C pull-up. Default value: 0
   * [2] PASS_THROUGH_MODE: I2C interface pass-through. Default value: 0
@@ -318,7 +318,7 @@ extern "C" {
   * \code
   * Read
   * Default value: output
-  * [7:6] This bit must be set to ‘0’ for the correct operation of the device
+  * [7:6] This bit must be set to ??for the correct operation of the device
   * [5] FF_IA: Free fall event detection status. Default: 0
   * [4] SLEEP_STATE_IA: Sleep event status. Default value: 0
   * [3] WU_IA: Wake up event detection status. Default
@@ -334,7 +334,7 @@ extern "C" {
   * \code
   * Read
   * Default value: output
-  * [7] This bit must be set to ‘0’ for the correct operation of the device
+  * [7] This bit must be set to ??for the correct operation of the device
   * [6] TAP_IA: Tap event detection status. Default: 0
   * [5] SINGLE_TAP: Single tap event status. Default value: 0
   * [4] DOUBLE_TAP: Double tap event detection status. Default value: 0
@@ -351,7 +351,7 @@ extern "C" {
   * \code
   * Read
   * Default value: output
-  * [7] This bit must be set to ‘0’ for the correct operation of the device
+  * [7] This bit must be set to ??for the correct operation of the device
   * [6] D6D_IA: Interrupt active for change position portrait, landscape, face-up, face-down. Default value: 0
   * [5] ZH: Z-axis high event (over-threshold). Default value: 0
   * [4] ZL: Z-axis low event (under-threshold). Default value: 0
@@ -506,11 +506,11 @@ extern "C" {
   * \code
   * Read
   * Default value: output
-  * [7] This bit must be set to ‘0’ for the correct operation of the device
+  * [7] This bit must be set to ??for the correct operation of the device
   * [6] SIGN_MOTION_IA: Significant motion event detection status. Default value: 0
   * [5] TILT_IA: Tilt event detection status. Default value: 0
   * [5] STEP_DETECTED: Step detector event detection status. Default value: 0
-  * [3:2]  This bit must be set to ‘0’ for the correct operation of the device
+  * [3:2]  This bit must be set to ??for the correct operation of the device
   * [1] SI_END_OP:Soft iron calculation status. Default value: 0
   * [0] SENSORHUB_END_OP:Senso hub communication status.  Default value: 0
   * \endcode
@@ -525,7 +525,7 @@ extern "C" {
   * [7] TIMER_EN: Time stamp count enable, output data are collected in TIMESTAMP0_REG (40h), TIMESTAMP1_REG (41h), TIMESTAMP2_REG (42h) register. Default: 0
   * [6] PEDO_EN: Pedometer algorithm enable(1). Default value: 0
   * [5] TILT_EN: Tilt calculation enable.(2) Default value: 0
-  * [4] This bit must be set to ‘0’ for the correct operation of the device
+  * [4] This bit must be set to ??for the correct operation of the device
   * [3] TAP_X_EN: Enable X direction in tap recognition. Default value: 0
   * [2] TAP_Y_EN: Enable Z direction in tap recognition. Default value: 0
   * [1] TAP_Z_EN: Enable Z direction in tap recognition. Default value: 0
@@ -539,7 +539,7 @@ extern "C" {
   * \code
   * Read/write
   * Default value: 0x00
-  * [7] This bit must be set to ‘0’ for the correct operation of the device
+  * [7] This bit must be set to ??for the correct operation of the device
   * [6:5] SIXD_THS[1:0]: Threshold for D6D function. Default value: 00
   * [4:0] TAP_THS[4:0]: Threshold for tap recognition. Default value: 0000
   * \endcode
@@ -763,7 +763,7 @@ extern "C" {
   * [7:4] ODR_G[3:0]: Gyroscope output data rate selection
   * [3:2] FS_G[1-0]: Gyroscope full-scale selection
   * [1] FS_125: Gyroscope full-scale at 125 dps
-  * [0] This bit must be set to ‘0’ for the correct operation of the device
+  * [0] This bit must be set to ??for the correct operation of the device
   * \endcode
  */
 #define LSM6DS3_XG_CTRL2_G                                  0x11
@@ -778,7 +778,7 @@ extern "C" {
   * [6] LVLen: Data level sensitive trigger Enable. Default value: 0
   * [5] LVL2en: Level sensitive latched Enable. Default value: 0
   * [4] XL_H_MODE: High Performance operating mode disable for accelerometer(1). Default value: 0
-  * [3:0] This bit must be set to ‘0’ for the correct operation of the device
+  * [3:0] This bit must be set to ??for the correct operation of the device
   * \endcode
  */
 #define LSM6DS3_XG_CTRL6_G                                  0x15
@@ -792,7 +792,7 @@ extern "C" {
 * [7] G_H_MODE: High Performance operating mode disable for Gyroscope(1) . Default: 0
 * [6] HP_EN: High Pass filter Enable. Default Value: 0
 * [5:4] HPCF_G[1:0]: Gyroscope High Pass filter Cut Off frequency selection. Default value: 00
-* [3:0] This bit must be set to ‘0’ for the correct operation of the device
+* [3:0] This bit must be set to ??for the correct operation of the device
 * \endcode
 */
 #define LSM6DS3_XG_CTRL7_G                                  0x16
@@ -871,9 +871,9 @@ extern "C" {
 * \code
 * Read/write
 * Default value: 0x00
-* [7:3] This bit must be set to ‘0’ for the correct operation of the device
+* [7:3] This bit must be set to ??for the correct operation of the device
 * [2] SLOPE_FDS: Enable HP filter on output registers and FIFO. Default value: 0
-* [1:0] This bit must be set to ‘0’ for the correct operation of the device
+* [1:0] This bit must be set to ??for the correct operation of the device
 * \endcode
 */
 #define LSM6DS3_XG_CTRL8_XL                                 0x17
@@ -883,11 +883,11 @@ extern "C" {
   * \code
   * Read/write
   * Default value: 0x38
-  * [7:6] These bits must be set to ‘0’ for the correct operation of the device
+  * [7:6] These bits must be set to ??for the correct operation of the device
   * [5] Zen_XL: Accelerometers’s Z-axis output enable
   * [4] Yen_XL: Accelerometers’s Y-axis output enable
   * [3] Xen_XL: Accelerometers’s X-axis output enable
-  * [2:0] These bits must be set to ‘0’ for the correct operation of the device
+  * [2:0] These bits must be set to ??for the correct operation of the device
   * \endcode
 */
 #define LSM6DS3_XG_CTRL9_XL                                 0x18
@@ -1431,7 +1431,10 @@ extern IMU_6AXES_StatusTypeDef LSM6DS3_IO_Write( uint8_t* pBuffer, uint8_t Devic
     uint16_t NumByteToWrite );
 extern IMU_6AXES_StatusTypeDef LSM6DS3_IO_Read( uint8_t* pBuffer, uint8_t DeviceAddr, uint8_t RegisterAddr,
     uint16_t NumByteToRead );
+
 extern void LSM6DS3_IO_ITConfig( void );
+/*magneto sensor IO functions*/
+extern void LSM303AGR_IO_ITConfig(void);
 
 /**
  * @}
