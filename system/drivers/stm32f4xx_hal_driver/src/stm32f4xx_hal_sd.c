@@ -2291,7 +2291,7 @@ static void SD_DMA_RxCplt(DMA_HandleTypeDef *hdma)
   hsd->DmaTransferCplt = 1U;
   
   /* Wait until SD transfer is complete */
-  while(hsd->SdTransferCplt == 0U)
+//  while(hsd->SdTransferCplt == 0U)
   {
   }
   
@@ -2330,7 +2330,7 @@ static void SD_DMA_TxCplt(DMA_HandleTypeDef *hdma)
   hsd->DmaTransferCplt = 1U;
   
   /* Wait until SD transfer is complete */
-  while(hsd->SdTransferCplt == 0U)
+//  while(hsd->SdTransferCplt == 0U)
   {
   }
  

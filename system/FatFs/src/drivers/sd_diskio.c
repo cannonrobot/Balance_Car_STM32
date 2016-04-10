@@ -111,7 +111,7 @@ DRESULT SD_read(BYTE *buff, DWORD sector, UINT count)
 {
   DRESULT res = RES_OK;
   
-  if(BSP_SD_ReadBlocks((uint32_t*)buff, 
+  if(BSP_SD_ReadBlocks_DMA((uint32_t*)buff, 
                        (uint64_t) (sector * BLOCK_SIZE), 
                        BLOCK_SIZE, 
                        count) != MSD_OK)
@@ -134,7 +134,7 @@ DRESULT SD_write(const BYTE *buff, DWORD sector, UINT count)
 {
   DRESULT res = RES_OK;
   
-  if(BSP_SD_WriteBlocks((uint32_t*)buff, 
+  if(BSP_SD_WriteBlocks_DMA((uint32_t*)buff, 
                         (uint64_t)(sector * BLOCK_SIZE), 
                         BLOCK_SIZE, count) != MSD_OK)
   {

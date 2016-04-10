@@ -1064,7 +1064,7 @@ static void I2C_EXPBD_MspInit(void)
     NUCLEO_I2C_EXPBD_RELEASE_RESET();
 
     /* Enable and set I2C_EXPBD Interrupt to the highest priority */
-    HAL_NVIC_SetPriority(NUCLEO_I2C_EXPBD_EV_IRQn, 0, 1);
+    HAL_NVIC_SetPriority(NUCLEO_I2C_EXPBD_EV_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(NUCLEO_I2C_EXPBD_EV_IRQn);
 
     
