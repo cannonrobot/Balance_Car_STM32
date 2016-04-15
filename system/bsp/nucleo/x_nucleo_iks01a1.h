@@ -116,7 +116,8 @@ typedef struct
 #endif /* CANNON_V1 */
 
 #if (defined (CANNON_V2))
-#define NUCLEO_I2C_EXPBD_SPEED                         1160000
+//#define NUCLEO_I2C_EXPBD_SPEED_LSM6DS3                         1160000
+#define NUCLEO_I2C_EXPBD_SPEED_LSM6DS3                         400000
 #endif /* CANNON_V2 */
 
 

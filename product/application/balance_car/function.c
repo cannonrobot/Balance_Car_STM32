@@ -409,3 +409,4 @@ HAL_StatusTypeDef HAL_TIM_PWM_Pulse(TIM_HandleTypeDef *htim,  uint32_t Channel,u
   }
    return HAL_OK;
 }
+

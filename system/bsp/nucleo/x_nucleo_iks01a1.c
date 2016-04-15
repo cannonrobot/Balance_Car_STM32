@@ -407,7 +407,7 @@ void LSM303AGR_IO_ITConfig( void )
      
      HAL_GPIO_Init(MAGNETO_INT1_GPIO_PORT, &GPIO_InitStructureInt1);
      
-     HAL_NVIC_SetPriority(MAGNETO_INT1_EXTI_IRQn, 0, 0);
+     HAL_NVIC_SetPriority(MAGNETO_INT1_EXTI_IRQn, 4, 0);
      HAL_NVIC_EnableIRQ(MAGNETO_INT1_EXTI_IRQn);
 }
 
@@ -908,7 +908,7 @@ static HAL_StatusTypeDef I2C_EXPBD_Init(void)
 #endif
 
 #if (defined (CANNON_V2))
-        I2C_EXPBD_Handle.Init.ClockSpeed = NUCLEO_I2C_EXPBD_SPEED;
+        I2C_EXPBD_Handle.Init.ClockSpeed = NUCLEO_I2C_EXPBD_SPEED_LSM6DS3;
         I2C_EXPBD_Handle.Init.DutyCycle = I2C_DUTYCYCLE_2;
 #endif
         I2C_EXPBD_Handle.Init.OwnAddress1 = 0x33;

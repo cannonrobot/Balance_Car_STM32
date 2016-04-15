@@ -44,6 +44,7 @@
 #include "imu_sensor.h"
 #include "cmsis_os.h"
 #include "control.h"
+#include "x_nucleo_cca01m1_audio_f4.h"
 #if NO_PRINTF
 #define printf(...)
 #endif
@@ -166,6 +167,16 @@ void SysTick_Handler(void)
 void BNRG_SPI_EXTI_IRQHandler(void)
 {
     HAL_GPIO_EXTI_IRQHandler(BNRG_SPI_EXTI_PIN);
+}
+/**
+  * @brief  This function handles DMA Stream interrupt request for First Device.
+  * @param  None
+  * @retval None
+  */
+void AUDIO_OUT1_I2S_IRQHandler(void)
+{
+
+  HAL_DMA_IRQHandler(hAudioOutI2s[0].hdmatx);
 }
 
 

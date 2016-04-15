@@ -1,6 +1,7 @@
 
 #include "app.h"
 #include "cmsis_os.h"
+
 /*start adv*/
 
 #if 0 //NO_PRINTF
@@ -8,9 +9,33 @@
 #endif
 
 
+#define REMOTE_CONTROL_ID 					0x01
+#define REMOTE_CONTROL_LONG 				5
 
+//#define PARAMETER_MODIFY_ACK_ID 		Y
+//#define PARAMETER_MODIFY_ACK_LONG 	1
+
+#define PARAMETER_MODIFY_ID 				0x09
+#define PARAMETER_MODIFY_LONG 			17
+
+#define PARAMETER_GET_ORIGIN_ID   	0x08
+#define PARAMETER_GET_ORIGIN_LONG 	1
+
+#define PARAMETER_PUT_ORIGIN_ID   	0x07
+#define PARAMETER_PUT_ORIGIN_LONG 	17
+
+#define MUSIC_PLAYER_MODE_ID     0x02
+#define MUSIC_PLAYER_MODE_LONG   2
+
+#define MUSIC_PLAYER_VOLUME_ID     0x03
+#define MUSIC_PLAYER_VOLUME_LONG   2
 
 static void adv_name_generate(uint8_t* uni_name);
+
+
+uint8_t Music_Volume;
+uint8_t Music_Volume_Pre;
+uint8_t Music_Mode;
 
 
 AxesRaw_TypeDef XData,GData;
@@ -45,6 +70,13 @@ extern int8_t	trun_mode;
 	
 	extern TIM_HandleTypeDef        TimHandleT2;//舵机
 extern   TIM_HandleTypeDef        TimHandleT3;//舵机
+
+extern __IO uint32_t PauseResumeStatus;
+extern char USBDISKPath[4];  
+extern FATFS USBDISKFatFs;   
+extern  MSC_ApplicationTypeDef AppliState;
+ extern __IO uint32_t RepeatState;
+ extern __IO uint32_t AudioPlayStart ;
 int temp=450;//程序调试使用的全局变量
 int temp2=0;
  xQueueHandle  TXQueue;
@@ -78,6 +110,9 @@ static void BLEThread(void const *argument)
    if(Ble_conn_state) {
    Ble_conn_state = BLE_NOCONNECTABLE;
      }
+	 	if( AppliState == APPLICATION_START){//如果接入插入SD卡，且有播放线程时最低优先级需要延时
+		 	osDelay(50);	
+		}
 	}
 }
 
@@ -157,12 +192,77 @@ static void BLEMessageQueueConsumer (const void *argument)
   }
 }
 
+static void MusicPlayThread (const void *argument)
+{
+  for(;;)
+  {	
+	//	MSC_Application();
+		 if(RepeatState == REPEAT_ON)
+      WavePlayerStart();
+		//BSP_AUDIO_OUT_Reset(SOUNDTERMINAL_DEV1);
+	//	BSP_AUDIO_OUT_PowerOff(SOUNDTERMINAL_DEV1);
+	//	osDelay(50);	
+	//	BSP_AUDIO_OUT_PowerOn(SOUNDTERMINAL_DEV1);
+		osDelay(50);	
+	}
+}
+
+
+static void MusicControlThread (const void *argument)
+{
+  
+  for(;;)
+  {	
+		if(Music_Volume!=Music_Volume_Pre){
+			BSP_AUDIO_OUT_SetVolume(SOUNDTERMINAL_DEV1,  STA350BW_CHANNEL_MASTER ,Music_Volume);
+			Music_Volume_Pre=Music_Volume;
+		}
+		if(Music_Mode!=0){
+			switch (Music_Mode){
+			case 1:   //播放按钮
+					if(AudioPlayStart){
+						 PauseResumeStatus = RESUME_STATUS;//继续
+					}
+					else{
+						RepeatState = REPEAT_ON;
+					}				
+					break;
+			case 2:  //停止按钮
+				  PauseResumeStatus = PAUSE_STATUS;
+					break;
+			case 5:  //向左按钮
+				if(AudioPlayStart){
+					WavePlayerStop();//停止
+				}
+				else{
+					//上一首
+				}	
+					break;
+			case 6:  //向右按钮
+				
+				break;
+			case 7:  //循环模式按钮
+				
+				break;
+			}	
+		Music_Mode=0;;
+		}
+		osDelay(50);	
+	}
+}
 void on_ready(void)
 {
     uint8_t tx_power_level = 7;
     uint16_t adv_interval = 100;
     uint8_t bdAddr[6];
     uint32_t data_rate = 400;
+	
+	
+	/* Initialize STA350BW */
+ // Init_AudioOut_Device();
+  
+  /* Start Audio Streaming*/
+ // Start_AudioOut_Device();  
 
     HCI_get_bdAddr(bdAddr);
     adv_name_generate(bdAddr+4);
@@ -170,15 +270,15 @@ void on_ready(void)
     ble_set_adv_param(name, bdAddr, tx_power_level, adv_interval);
     ble_device_start_advertising();
 
-    imu_sensor_select_features(ALL_ENABLE);
+ //   imu_sensor_select_features(ALL_ENABLE);
 
-    imu_sensor_reset();
+  //  imu_sensor_reset();
 
-    imu_sensor_set_data_rate(&data_rate, LSM6DS3_XG_FIFO_MODE_CONTINUOUS_OVERWRITE);
+   // imu_sensor_set_data_rate(&data_rate, LSM6DS3_XG_FIFO_MODE_CONTINUOUS_OVERWRITE);
 
-	  imu_sensor_filter();
+	 // imu_sensor_filter();
 	
-    imu_sensor_start();
+   // imu_sensor_start();
 
 	 
 	 //HAL_Delay(100);
@@ -186,7 +286,17 @@ void on_ready(void)
 		Encoder_Init();         
 	Steer_Pwm_Init();
 	Adc_Init();
+	FATFS_LinkDriver(&SD_Driver, USBDISKPath);
+	 /* FatFs initialization fails */
+  if(f_mount(&USBDISKFatFs, (TCHAR const*)USBDISKPath, 1 ) == FR_OK )  
+       AppliState = APPLICATION_START;
+    
+ 
+	
+//	  WavePlayerStart();
 //SD_Init();
+
+ 
  
   TXQueue=xQueueCreate( 5 , 20 );
 	
@@ -196,14 +306,22 @@ void on_ready(void)
   
   /* Start Timer */
   //osTimerStart(osTimer, 200);		
-osThreadDef(BLE, BLEThread, osPriorityIdle, 0, 2*configMINIMAL_STACK_SIZE);//蓝牙接收，最低的优先级
+	osThreadDef(BLE, BLEThread, osPriorityIdle, 0, 2*configMINIMAL_STACK_SIZE);//蓝牙接收，最低的优先级
   osThreadCreate(osThread(BLE), NULL);
 	
 	osThreadDef(QCons, BLEMessageQueueConsumer, osPriorityAboveNormal, 0, 3*configMINIMAL_STACK_SIZE);//蓝牙发送，结合列队
   osThreadCreate(osThread(QCons), NULL);
 	
-osThreadDef(uLEDThread, ToggleLEDsThread, osPriorityNormal, 0,configMINIMAL_STACK_SIZE);//指示灯，周期的闪烁
- osThreadCreate(osThread(uLEDThread), NULL);
+	if( AppliState == APPLICATION_START){
+			osThreadDef(MusicPlayThread, MusicPlayThread, osPriorityIdle, 0, 3*configMINIMAL_STACK_SIZE);//音乐播放器播放线程
+			osThreadCreate(osThread(MusicPlayThread), NULL);
+	
+			osThreadDef(MusicControlThread, MusicControlThread, osPriorityAboveNormal, 0, 2*configMINIMAL_STACK_SIZE);//音乐播放器控制线程,比播放线程优先级高
+			osThreadCreate(osThread(MusicControlThread), NULL);
+	}
+	
+	osThreadDef(uLEDThread, ToggleLEDsThread, osPriorityNormal, 0,configMINIMAL_STACK_SIZE);//指示灯，周期的闪烁
+	osThreadCreate(osThread(uLEDThread), NULL);
 	
 	osThreadDef(mainThread, mainThread, osPriorityRealtime, 0,2*configMINIMAL_STACK_SIZE);//主定时，最高优先级
   osThreadCreate(osThread(mainThread), NULL);
@@ -251,8 +369,8 @@ void ble_device_on_message(uint8_t type, uint16_t length, uint8_t* value)
 	
 		
 		switch (*value){
-		case 0x01://遥控ID
-			if(Checksum(5,value))return;
+		case REMOTE_CONTROL_ID://遥控ID
+			if(Checksum(REMOTE_CONTROL_LONG,value))return;
 			p8Data[0]=*(value+1);//X轴
 			p8Data[1]=*(value+2);//Y轴
 			p8Data[2]=*(value+3);//模式控制字1
@@ -269,8 +387,8 @@ void ble_device_on_message(uint8_t type, uint16_t length, uint8_t* value)
 			}
 			
 			break;
-		case 0x09://修改参数ID
-			if(Checksum(17,value))return;
+		case PARAMETER_MODIFY_ID://修改参数ID
+			if(Checksum(PARAMETER_MODIFY_LONG,value))return;
 			for (int i = 0; i < 8; i++) {
 				p16Data[i] = (((int16_t)*(value +i* 2 + 1)) << 8) + (int16_t)*(value+i*2+2);
 			}
@@ -290,7 +408,7 @@ void ble_device_on_message(uint8_t type, uint16_t length, uint8_t* value)
 			}
 			
 			break;
-		case 0x08://请求原始数据
+		case PARAMETER_GET_ORIGIN_ID://请求原始数据
 		
 		
 			p16Data[0]=Angle_Kp;
@@ -307,11 +425,11 @@ void ble_device_on_message(uint8_t type, uint16_t length, uint8_t* value)
 				send_temp[1+16]+=send_temp[i+1];
        }
 			send_temp[1+16]+=send_temp[0];
-			send_temp[0]=7;//APP接收原始数据的ID
+			send_temp[0]=PARAMETER_PUT_ORIGIN_ID;//APP接收原始数据的ID
 			//ble_device_send((uint8_t)0x01,18,(uint8_t*)send_temp);
 			
 			 RXMessage.type=(uint8_t)0x01;
-			RXMessage.length=(uint8_t)18;
+			RXMessage.length=(uint8_t)PARAMETER_PUT_ORIGIN_LONG+1;
 			memcpy(RXMessage.value, (uint8_t*)send_temp, RXMessage.length);
 			if( TXQueue != 0 )
 			{
@@ -319,6 +437,13 @@ void ble_device_on_message(uint8_t type, uint16_t length, uint8_t* value)
 			}
 			
 			break;
+		case MUSIC_PLAYER_MODE_ID:
+		Music_Mode=  *(value+1);
+		break;
+		case MUSIC_PLAYER_VOLUME_ID:
+				if(Checksum(MUSIC_PLAYER_VOLUME_LONG,value))return;
+		Music_Volume=*(value+1);
+		break;
 		}
 }
 /* Device on connect */
