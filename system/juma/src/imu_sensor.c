@@ -7,11 +7,11 @@
 #define LSM6DS3_THRESHOLD
 #define LSM6DS3_SOFT_RESET
 #define LSM6DS3_CLEAR_FIFO
-IMU_Offset MyOffset={31,-97,-23,
-								 0,0,0,
-							//	-325,-225,-350};
-									-350,-230,-294};
-
+IMU_Offset MyOffset={0,0,0,
+										20,-5,-50,
+									//	0,0,0,
+									90,100,-225};
+uint8_t isCalib=0;
 //extern IMU_Offset MyOffset;
 
  float quat[4] = {1.0f, 0.0f, 0.0f, 0.0f};
@@ -555,9 +555,9 @@ imu_status_t imu_sensor_read_data_from_fifo(imu_sensor_raw_data_t* Sensor_Raw_Da
 	
 	
 	
-  sensor_data.gyro[0] = -((float)(pData[0]-MyOffset.A_X)   / 32768 * 2000 );
-  sensor_data.gyro[1] = ((float)(pData[1]-MyOffset.A_Y) / 32768 * 2000 );
-  sensor_data.gyro[2] = -((float)(pData[2]-MyOffset.A_Z)  / 32768 * 2000 );
+  sensor_data.gyro[0] = -((float)(pData[0]-MyOffset.G_X)   / 32768 * 2000 );
+  sensor_data.gyro[1] = ((float)(pData[1]-MyOffset.G_Y) / 32768 * 2000 );
+  sensor_data.gyro[2] = -((float)(pData[2]-MyOffset.G_Z)  / 32768 * 2000 );
 
   sensor_data.acc[0] = -(float)pData[3];
   sensor_data.acc[1] = (float)pData[4] ;
@@ -600,7 +600,7 @@ int16_t pData_sensor[12] = {0};
 extern imu_sensor_raw_data_t sensor_saw_data;//IMU和磁力计原始值
 extern	imu_sensor_data_t sensor_data;//校准转换后的值，Offset见MyOffset参数
 	extern imu_euler_data_t sensor_euler_angle;//欧拉角
-	
+extern	uint16_t MData[3];
 	void get_euler(void)
 {
 		for (int i = 0; i < 7; i++) {
@@ -620,23 +620,61 @@ extern	imu_sensor_data_t sensor_data;//校准转换后的值，Offset见MyOffset参数
   sensor_data.acc[1] = (float)pData_sensor[5] ;
   sensor_data.acc[2] = -(float)pData_sensor[6] ;
 	
-	MahonyAHRSupdate(quat, 1.0f/416,sensor_data.gyro[0]* 3.141592f/180.0f,sensor_data.gyro[1] * 3.141592f/180.0f,sensor_data.gyro[2]* 3.141592f/180.0f,sensor_data.acc[0],sensor_data.acc[1],sensor_data.acc[2],0,0,0);
-	
+	//	MahonyAHRSupdate(quat, 1.0f/416,sensor_data.gyro[0]* 3.141592f/180.0f,sensor_data.gyro[1] * 3.141592f/180.0f,sensor_data.gyro[2]* 3.141592f/180.0f,sensor_data.acc[0],sensor_data.acc[1],sensor_data.acc[2],0,0,0);
+	MahonyAHRSupdateIMU(quat, 1.0f/416,sensor_data.gyro[0]* 3.141592f/180.0f,sensor_data.gyro[1] * 3.141592f/180.0f,sensor_data.gyro[2]* 3.141592f/180.0f,sensor_data.acc[0],sensor_data.acc[1],sensor_data.acc[2]);
+ 	
   sensor_euler_angle.pitch = atan2(2 *(quat[2] * quat[3] + quat[0] * quat[1]) , quat[0] * quat[0] -quat[1] * quat[1] -quat[2] * quat[2] + quat[3] * quat[3])*57.295646f; 
-	sensor_euler_angle.roll=asin(-2*(quat[1]*quat[3]-quat[0]*quat[2]))*57.295646f;
-	sensor_euler_angle.yaw=atan2(2*(quat[1] * quat[2] + quat[0] * quat[3]) , quat[0] * quat[0] +quat[1] * quat[1] -quat[2] * quat[2] - quat[3] * quat[3])*57.295646f; 	
+	//sensor_euler_angle.roll=asin(-2*(quat[1]*quat[3]-quat[0]*quat[2]))*57.295646f;
+	//sensor_euler_angle.yaw=atan2(2*(quat[1] * quat[2] + quat[0] * quat[3]) , quat[0] * quat[0] +quat[1] * quat[1] -quat[2] * quat[2] - quat[3] * quat[3])*57.295646f; 	
 		
 }
+
+void getYaw(int Samp){
+	
+		static float quat[4] = {1.0f, 0.0f, 0.0f, 0.0f};
+	 sensor_data.mag[0] = (float)(MData[0]-MyOffset.M_X);
+  sensor_data.mag[1] = (float)(MData[1]-MyOffset.M_Y);
+  sensor_data.mag[2] = (float)(MData[2]-MyOffset.M_Z);
+MahonyAHRSupdate(quat, Samp/1000.0f,-sensor_data.gyro[0]* 3.141592f/180.0f,sensor_data.gyro[1] * 3.141592f/180.0f,-sensor_data.gyro[2]* 3.141592f/180.0f,-sensor_data.acc[0],sensor_data.acc[1],-sensor_data.acc[2],-sensor_data.mag[1],-sensor_data.mag[0],sensor_data.mag[2]);
+//MadgwickAHRSupdate(quat, Samp/1000.0f,-sensor_data.gyro[0]* 3.141592f/180.0f,sensor_data.gyro[1] * 3.141592f/180.0f,-sensor_data.gyro[2]* 3.141592f/180.0f,-sensor_data.acc[0],sensor_data.acc[1],-sensor_data.acc[2],sensor_data.mag[1]*-1,sensor_data.mag[0]*-1,sensor_data.mag[2]);
+
+	sensor_euler_angle.yaw=atan2(2*(quat[1] * quat[2] + quat[0] * quat[3]) , quat[0] * quat[0] +quat[1] * quat[1] -quat[2] * quat[2] - quat[3] * quat[3])*57.295646f; 	
+	
+}
+
+
 	void imu_sensor_read_data_from_fifo_DMA(void)
 {
 	LSM6DS3_IO_Read_DMA(tempReg_sensor, LSM6DS3_XG_MEMS_ADDRESS, LSM6DS3_XG_FIFO_DATA_OUT_L, 14) ;
 	
 }
+void Calibration_Gyro(void)
+{
+	static uint16_t Calibration_Gyro_Cnt=0;
+	static int32_t Calibration_Gyro_Sum[3]={0,0,0};
+	if(Calibration_Gyro_Cnt<2000){
+		Calibration_Gyro_Sum[0]+=sensor_saw_data.gyro[0];
+		Calibration_Gyro_Sum[1]+=sensor_saw_data.gyro[1];
+		Calibration_Gyro_Sum[2]+=sensor_saw_data.gyro[2];
+	}
+	else{
+		MyOffset.G_X=Calibration_Gyro_Sum[0]/2000;
+		MyOffset.G_Y=Calibration_Gyro_Sum[1]/2000;
+		MyOffset.G_Z=Calibration_Gyro_Sum[2]/2000;
+		isCalib=1;
+	}
+	Calibration_Gyro_Cnt++;
+	
+}
+
+
 #ifdef I2C_DMA_MODE
 void imu_sensor_dma_read_call_back(void)
 {
 	get_euler();
+	
 	Car_Control();
+	
 }
 #endif
 imu_status_t my_imu_sensor_read_data_from_fifo(imu_sensor_raw_data_t* Sensor_Raw_Data,imu_sensor_data_t* Sensor_Data,imu_euler_data_t* Sensor_Euler_Angle)
@@ -954,4 +992,7 @@ static uint16_t imu_sensor_get_fifo_datalength(void)
   }
 	return fifo_1_number;
 }
+
+
+
 

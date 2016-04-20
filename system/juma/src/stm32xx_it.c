@@ -228,15 +228,23 @@ void PPP_IRQHandler(void)
 {
 }
 */
+extern osSemaphoreId osSemaphore_MWMS_EXTI;		//用于中断的信号量
 #ifdef SENSOR_FIFO
 /*lsm6ds3*/
 void EXTI0_IRQHandler(void)
 {
+	static portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
    if(__HAL_GPIO_EXTI_GET_IT(MEMS_INT1_PIN) != RESET)
   {
     __HAL_GPIO_EXTI_CLEAR_IT(MEMS_INT1_PIN);
    // Car_Control();
-		imu_sensor_read_data_from_fifo_DMA();
+		//osSemaphoreRelease(osSemaphore);
+
+	
+	if(xSemaphoreGiveFromISR( osSemaphore_MWMS_EXTI, &xHigherPriorityTaskWoken )==1){
+	portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
+	}
+	//	imu_sensor_read_data_from_fifo_DMA();
 //    imu_sensor_read_data_from_fifo();
 //    printf("fifo interrupt \n");
   }

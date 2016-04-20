@@ -21,5 +21,6 @@ void	Adc_Init(void);
 	void Motor_Control_1(int16_t Pulse);
 		void Motor_Control_2(int16_t Pulse);
 	void Get_Adc(uint32_t *Adc);
+	uint8_t Fall_Detect(float Angle,float Target);
 HAL_StatusTypeDef HAL_TIM_PWM_Pulse(TIM_HandleTypeDef *htim,  uint32_t Channel,uint32_t Pulse);
 #endif

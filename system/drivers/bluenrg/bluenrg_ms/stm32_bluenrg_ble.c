@@ -179,7 +179,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi)
     HAL_GPIO_Init(BNRG_SPI_IRQ_PORT, &GPIO_InitStruct);
 
     /* Configure the NVIC for SPI */  
-    HAL_NVIC_SetPriority(BNRG_SPI_EXTI_IRQn, 3, 0);    
+    HAL_NVIC_SetPriority(BNRG_SPI_EXTI_IRQn, 0x0D, 0);    
     HAL_NVIC_EnableIRQ(BNRG_SPI_EXTI_IRQn);
   }
 }

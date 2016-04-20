@@ -141,6 +141,9 @@ imu_status_t imu_sensor_filter(void);
 
 void imu_sensor_dma_read_call_back(void);
 
+void getYaw(int Samp);
+
+
 #endif /*_IMU_SENSOR_H_*/
 
 

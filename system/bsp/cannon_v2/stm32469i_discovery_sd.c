@@ -477,11 +477,11 @@ __weak void BSP_SD_MspInit(SD_HandleTypeDef *hsd, void *Params)
   HAL_DMA_Init(&dma_tx_handle);
 
   /* NVIC configuration for DMA transfer complete interrupt */
-  HAL_NVIC_SetPriority(SD_DMAx_Rx_IRQn, 6, 0);
+  HAL_NVIC_SetPriority(SD_DMAx_Rx_IRQn, 0x0C, 0);
   HAL_NVIC_EnableIRQ(SD_DMAx_Rx_IRQn);
 
   /* NVIC configuration for DMA transfer complete interrupt */
-  HAL_NVIC_SetPriority(SD_DMAx_Tx_IRQn, 6, 0);
+  HAL_NVIC_SetPriority(SD_DMAx_Tx_IRQn, 0x0C, 0);
   HAL_NVIC_EnableIRQ(SD_DMAx_Tx_IRQn);
 }
 

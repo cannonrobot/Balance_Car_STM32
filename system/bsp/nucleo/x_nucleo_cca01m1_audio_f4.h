@@ -171,7 +171,7 @@ extern "C" {
 #define  AUDIO_OUT2_I2S_IRQHandler                 DMA1_Stream7_IRQHandler
   
   /* Select the interrupt preemption priority and subpriority for the IT/DMA interrupt */
-#define AUDIO_OUT_IRQ_PREPRIO            1   /* Select the preemption priority level(0 is the highest) */
+#define AUDIO_OUT_IRQ_PREPRIO            0x0C   /* Select the preemption priority level(0 is the highest) */
 #define DMA_MAX_SZE                     0xFFFF
   /**
   * @}

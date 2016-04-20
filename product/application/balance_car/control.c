@@ -1,9 +1,9 @@
 
 
 #include "control.h"
-
-#define SPEED_INTEGRAL_MAX  150
-#define SPEED_INTEGRAL_MIN  -150
+#include "math.h"
+#define SPEED_INTEGRAL_MAX  200
+#define SPEED_INTEGRAL_MIN  -200
 
 #define TURN_CONTROL_OUT_MAX  500
 #define TURN_CONTROL_OUT_MIN  -500
@@ -14,14 +14,15 @@ float speed_target;
 float 	turn_target_speed;
 float 	turn_target_orientaion;
 int8_t	trun_mode;
-float Speed_Kp=5,Speed_Ki=1;	//速度控制PI
-float Turn_Kp=0,Turn_Kp2=3;							//转向控制P
-float Angle_Kp=65,Angle_Kd=12;	//角度控制PD
- float Car_Angle_Center=0;			//平衡点角度
+float Speed_Kp=11,Speed_Ki=2;	//速度控制PI
+float Turn_Kp=4,Turn_Kp2=3;							//转向控制P
+float Angle_Kp=130,Angle_Kd=12;	//角度控制PD
+ float Car_Angle_Center=3;			//平衡点角度
+ extern IMU_Offset MyOffset;
 imu_sensor_raw_data_t sensor_saw_data;//IMU和磁力计原始值
 imu_sensor_data_t sensor_data;//校准转换后的值，Offset见MyOffset参数
 imu_euler_data_t sensor_euler_angle;//欧拉角
-
+uint16_t MData[3];
 int16_t motor1_output;//电机1的输出值，-1000~1000
 int16_t motor2_output;//电机2的输出值，-1000~1000
 
@@ -38,9 +39,9 @@ int16_t motor_output_Turn;
  float Speed_ControlOutOld;
 float SpeedControlOutNew=0;
 float SpeedControlOutValue;
- 
+ int8_t Falled_Flag;
  int my_cnt=0;
-
+int MAG_Cnt=0;
 /**************************************************************************
 函数功能：增量PI控制器
 入口参数：编码器测量值，目标速度
@@ -138,6 +139,13 @@ int Turn_Control(int8_t Mode,int16_t Turn_Speed,float Now_Orientation,float Targ
 	return motor_output_Turn;
 }
 
+void IIC_Operation(void){
+	MAG_Cnt++;
+	if(MAG_Cnt>=40){
+		MAG_Cnt=0;
+		LSM303AGR_MAG_Get_Raw_Magnetic((u8_t*)MData);
+	}
+}
 void Car_Control(void){
 
 	//imu_sensor_read_data_from_fifo(&sensor_saw_data,&sensor_data,&sensor_euler_angle);
@@ -149,9 +157,14 @@ void Car_Control(void){
 	motor1_output=motor_output_Angle-motor_output_Speed+motor_output_Turn;
 	motor2_output=motor_output_Angle-motor_output_Speed-motor_output_Turn;
 	
+	if(Fall_Detect(sensor_euler_angle.pitch,Car_Angle_Center)){
+		motor1_output=0;
+		motor2_output=0;
+	}
 		Motor_Control_1(motor1_output);
-		Motor_Control_2(motor2_output);	
-
+		Motor_Control_2(-motor2_output);	
+	
+	IIC_Operation();//IIC为非重载函数，中断会导致其出错，所以这里将磁力计数据读取放到这里，其他不常用IIC操作放到其他任务中
 	my_cnt++;
 }
 

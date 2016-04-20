@@ -226,7 +226,7 @@ void LSM6DS3_IO_ITConfig( void )
     HAL_GPIO_Init(MEMS_INT1_GPIO_PORT, &GPIO_InitStructureInt1);
 
     /* Enable and set EXTI Interrupt priority */
-    HAL_NVIC_SetPriority(MEMS_INT1_EXTI_IRQn, 0x00, 0x00);
+    HAL_NVIC_SetPriority(MEMS_INT1_EXTI_IRQn, 0x09, 0x00);
     HAL_NVIC_EnableIRQ(MEMS_INT1_EXTI_IRQn);
 
 //  /* Enable INT2 GPIO clock */
@@ -407,7 +407,7 @@ void LSM303AGR_IO_ITConfig( void )
      
      HAL_GPIO_Init(MAGNETO_INT1_GPIO_PORT, &GPIO_InitStructureInt1);
      
-     HAL_NVIC_SetPriority(MAGNETO_INT1_EXTI_IRQn, 4, 0);
+     HAL_NVIC_SetPriority(MAGNETO_INT1_EXTI_IRQn, 0x0B, 0);
      HAL_NVIC_EnableIRQ(MAGNETO_INT1_EXTI_IRQn);
 }
 
@@ -972,7 +972,7 @@ static HAL_StatusTypeDef I2C_EXPBD_Read_DMA(uint8_t* pBuffer, uint8_t Addr, uint
 /*I2C READ DMA CALL BACK */
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
-
+	
     imu_sensor_dma_read_call_back();
 }
 
@@ -1064,7 +1064,7 @@ static void I2C_EXPBD_MspInit(void)
     NUCLEO_I2C_EXPBD_RELEASE_RESET();
 
     /* Enable and set I2C_EXPBD Interrupt to the highest priority */
-    HAL_NVIC_SetPriority(NUCLEO_I2C_EXPBD_EV_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(NUCLEO_I2C_EXPBD_EV_IRQn, 0x0A, 0);
     HAL_NVIC_EnableIRQ(NUCLEO_I2C_EXPBD_EV_IRQn);
 
     
@@ -1102,7 +1102,7 @@ static void I2C_EXPBD_MspInit(void)
         
         /*##-6- Configure NVIC for DMA transfer complete/error interrupts ##########*/
         /* Set Interrupt Group Priority */
-        HAL_NVIC_SetPriority(DMA_STREAM_IRQ, 0, 0);
+        HAL_NVIC_SetPriority(DMA_STREAM_IRQ, 0x0A, 0);
 
         /* Enable the DMA STREAM global Interrupt */
         HAL_NVIC_EnableIRQ(DMA_STREAM_IRQ);

@@ -4,7 +4,10 @@
 #include "app.h"
 
 #define BETADEF		0.4f		// 2 * proportional gain
-
+extern imu_sensor_data_t sensor_data;
+extern imu_sensor_raw_data_t sensor_saw_data;
+extern uint16_t MData[3];
+ float  Acc_angle,Gry_vivi;
  float invSqrt(float x) {
 	float halfx = 0.5f * x;
 	float y = x;
@@ -236,5 +239,235 @@ void MahonyAHRSupdate(float* quat, float deltaT, float gx, float gy, float gz, f
 	quat[2]=q2;
 	quat[3]=q3;
 }
+void MahonyAHRSupdateIMU(float* quat, float deltaT, float gx, float gy, float gz, float ax, float ay, float az) {
+	float q0=quat[0];
+	float q1=quat[1];
+	float q2=quat[2];
+	float q3=quat[3];
+float recipNorm;
+float halfvx, halfvy, halfvz;
+float halfex, halfey, halfez;
+float qa, qb, qc;
+ 
+// Compute feedback only if accelerometer measurement valid (avoids NaN in accelerometer normalisation)
+if(!((ax == 0.0f) && (ay == 0.0f) && (az == 0.0f))) {
+ 
+ 
+// Normalise accelerometer measurement
+recipNorm = invSqrt(ax * ax + ay * ay + az * az);
+ax *= recipNorm;
+ay *= recipNorm;
+az *= recipNorm;       
+ 
+// Estimated direction of gravity and vector perpendicular to magnetic flux
+halfvx = q1 * q3 - q0 * q2;
+halfvy = q0 * q1 + q2 * q3;
+halfvz = q0 * q0 - 0.5f + q3 * q3;
+ 
+// Error is sum of cross product between estimated and measured direction of gravity
+halfex = (ay * halfvz - az * halfvy);
+halfey = (az * halfvx - ax * halfvz);
+halfez = (ax * halfvy - ay * halfvx);
+ 
+// Compute and apply integral feedback if enabled
+if(twoKi > 0.0f) {
+ 
+integralFBx += twoKi * halfex * (1.0f * deltaT);// integral error scaled by Ki
+integralFBy += twoKi * halfey * (1.0f * deltaT);
+integralFBz += twoKi * halfez * (1.0f * deltaT);
+gx += integralFBx;// apply integral feedback
+gy += integralFBy;
+gz += integralFBz;
+ 
+}
+else {
+ 
+integralFBx = 0.0f;// prevent integral windup
+integralFBy = 0.0f;
+integralFBz = 0.0f;
+ 
+}
+ 
+// Apply proportional feedback
+gx += twoKp * halfex;
+gy += twoKp * halfey;
+gz += twoKp * halfez;
+ 
+}
+ 
+// Integrate rate of change of quaternion
+gx *= (0.5f * (1.0f * deltaT));// pre-multiply common factors
+gy *= (0.5f * (1.0f * deltaT));
+gz *= (0.5f * (1.0f * deltaT));
+qa = q0;
+qb = q1;
+qc = q2;
+q0 += (-qb * gx - qc * gy - q3 * gz);
+q1 += (qa * gx + qc * gz - q3 * gy);
+q2 += (qa * gy - qb * gz + q3 * gx);
+q3 += (qa * gz + qb * gy - qc * gx);
+ 
+// Normalise quaternion
+recipNorm = invSqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);
+	q0 *= recipNorm;
+	q1 *= recipNorm;
+	q2 *= recipNorm;
+	q3 *= recipNorm;
+	quat[0]=q0;
+	quat[1]=q1;
+	quat[2]=q2;
+	quat[3]=q3;
+ 
+}
+
+//反正切计算倾角值
+void count_Acc_angle()																									//计算倾角
+{
+  	if(sensor_data.acc[1]>0)
+	{
+		Acc_angle = atan2((float) sensor_data.acc[1],(float)sensor_data.acc[2])*(180/3.14159265);		   			//反正切计算
+
+	}
+		else
+		{
+	   	Acc_angle = atan2((float)sensor_data.acc[2],(float)sensor_data.acc[1])*(180/3.14159265)-90;				//反正切计算
+			Acc_angle = -Acc_angle;
+
+		}
+}
 
 
+float Angle=0,Gyro_x=0;         //小车滤波后倾斜角度/角速度	
+//******卡尔曼参数************
+		
+float  Q_angle=0.001;  
+float  Q_gyro=0.003;
+float  R_angle=0.5;
+float  dt=0.0024;	                  //dt为kalman滤波器采样时间;
+char   C_0 = 1;
+float  Q_bias=0, Angle_err=0;
+//float  PCt_0=0, PCt_1=0, E=0;
+float  K_0=0, K_1=0, t_0=0, t_1=0;
+float  Pdot[4] ={0,0,0,0};
+float  PP[2][2] = { { 1, 0 },{ 0, 1 } };
+
+//*********************************************************
+// 卡尔曼滤波
+//*********************************************************
+
+
+
+void Kalman_Filter(float Gyro,float Accel)	
+{
+	
+	/*
+	
+	Angle+=(Gyro - Q_bias) * dt;           //先验估计
+
+	
+	Pdot[0]=Q_angle - PP[0][1] - PP[1][0]; // Pk-先验估计误差协方差的微分
+
+	Pdot[1]=-PP[1][1];
+	Pdot[2]=-PP[1][1];
+	Pdot[3]=Q_gyro;
+	
+	PP[0][0] += Pdot[0] * dt;   // Pk-先验估计误差协方差微分的积分
+	PP[0][1] += Pdot[1] * dt;   // =先验估计误差协方差
+	PP[1][0] += Pdot[2] * dt;
+	PP[1][1] += Pdot[3] * dt;
+		
+	Angle_err = Accel - Angle;
+	
+	PCt_0 = C_0 * PP[0][0];
+	PCt_1 = C_0 * PP[1][0];
+	
+	E = R_angle + C_0 * PCt_0;
+	
+	K_0 = PCt_0 / E;
+	K_1 = PCt_1 / E;
+	
+	t_0 = PCt_0;
+	t_1 = C_0 * PP[0][1];
+
+	PP[0][0] -= K_0 * t_0;		 //后验估计误差协方差
+	PP[0][1] -= K_0 * t_1;
+	PP[1][0] -= K_1 * t_0;
+	PP[1][1] -= K_1 * t_1;
+		
+	Angle	+= K_0 * Angle_err;	 //后验估计
+	Q_bias	+= K_1 * Angle_err;	 //后验估计
+	Gyro_x   = Gyro - Q_bias;	 //输出值(后验估计)的微分=角速度
+	//calculate_PWM(Gyro_x,Angle);
+	*/
+}
+struct _float E, N;
+	struct _vector32 temp_m;
+	struct _vector a,m,from;
+	float heading;//En esta variable almacenamos el heading cada vez que se actualiza. Si heading es igual a 500 significa error
+	
+void vector_normalize_E(void){
+		float ax;
+		ax=sqrt((E.x*E.x) + (E.y*E.y) + (E.z*E.z));
+		E.x /= ax;
+		E.y /= ax;
+		E.z /= ax;
+	}
+	
+	void vector_normalize_N(void){
+		float ax;
+		ax=sqrt((N.x*N.x) + (N.y*N.y) + (N.z*N.z));
+		N.x /= ax;
+		N.y /= ax;
+		N.z /= ax;
+	}
+	float vector_dot_E(void){
+		return (E.x * from.x) + (E.y * from.y) + (E.z * from.z);
+	}
+	
+	float vector_dot_N(void){
+		return (N.x * from.x) + (N.y * from.y) + (N.z * from.z);
+	}
+
+	void get_heading(void ){
+		static	float Pre_heading=0;;
+		a.x=sensor_saw_data.acc[0];
+		a.y=sensor_saw_data.acc[1];
+		a.z=sensor_saw_data.acc[2];
+		
+		m.x=MData[0];
+		m.y=MData[1];
+		m.z=MData[2];
+		//Calculamos el heading
+		 temp_m.x=m.x;
+		 temp_m.y=m.y;
+		 temp_m.z=m.z;
+		 
+		 //producto cruz de E = temp_m X a
+		 E.x = (temp_m.y * a.z) - (temp_m.z * a.y);
+		 E.y = (temp_m.z * a.x) - (temp_m.x * a.z);
+		 E.z = (temp_m.x * a.y) - (temp_m.y * a.x);
+		 
+		 //Normalizaci髇 de E
+		 vector_normalize_E();
+		 
+		//producto cruz de N = a X E
+		 N.x = (a.y * E.z) - (a.z * E.y);
+		 N.y = (a.z * E.x) - (a.x * E.z);
+		 N.z = (a.x * E.y) - (a.y * E.x);
+		 
+		 //Normalizaci髇 de N
+		 vector_normalize_N();
+		 
+		 //Estas variables se usan depende la ortientacion de la tarjeta respecto a la horizontal
+		 from.x=1;
+		 from.y=0;
+		 from.z=0;
+		 
+		 heading = Pre_heading*0.9+(atan2(vector_dot_E(),vector_dot_N()) * 180) / 3.14159264*0.1 ;
+		 
+		Pre_heading=heading;
+		 
+		 
+		// *Heading=heading;
+	
+}

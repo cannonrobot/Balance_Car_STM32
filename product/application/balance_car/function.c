@@ -410,3 +410,19 @@ HAL_StatusTypeDef HAL_TIM_PWM_Pulse(TIM_HandleTypeDef *htim,  uint32_t Channel,u
    return HAL_OK;
 }
 
+
+
+uint8_t Fall_Detect(float Angle,float Target){
+	static uint8_t Falled_Flag=0;
+	float E_Angle;
+	E_Angle=Angle-Target;
+	if(Falled_Flag==0){
+		if(E_Angle>60||E_Angle<-60)
+		Falled_Flag=1;
+	}
+	else{
+		if(E_Angle>-10&&E_Angle<10)
+		Falled_Flag=0;
+	}
+		return Falled_Flag;
+}
