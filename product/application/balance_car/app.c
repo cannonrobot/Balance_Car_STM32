@@ -97,35 +97,15 @@ typedef struct
 	uint8_t value[18];
  }BLEMessage;
 
-/* 
-static void osTimerCallback (void const *argument)
-{
-  BSP_LED_Toggle(LED0);
-	
-}
-*/
  
  static void CarControlhread(void const *argument)
 {  portBASE_TYPE taskWoken = pdFALSE;  
   for(;;)
   {
-		// if(osSemaphoreWait(osSemaphore , 0) == osOK)
-      {
-        
-      }
-		
-		//  if (xSemaphoreTakeFromISR(osSemaphore, &taskWoken) != pdTRUE) 
-		//		{
-		//		Error_Handler();
-		//		}
-				portEND_SWITCHING_ISR(taskWoken);
-		
+
 		if(xSemaphoreTake( osSemaphore_MWMS_EXTI, portMAX_DELAY )==pdTRUE)
-		// if(osSemaphoreWait(osSemaphore , 0) == osOK)
       {
 				imu_sensor_read_data_from_fifo_DMA();
-     //  imu_sensor_dma_read_call_back();
-		//		  BSP_LED_Toggle(LED0);
       }
   }
 }
@@ -407,12 +387,7 @@ void on_ready(void)
   osSemaphoreDef(SEM);
   osSemaphore_MWMS_EXTI = osSemaphoreCreate(osSemaphore(SEM) , 1);
 	
- /* Create Timer */
-  //osTimerDef(LEDTimer, osTimerCallback);
- // osTimerId osTimer = osTimerCreate (osTimer(LEDTimer), osTimerPeriodic, NULL);
-  
-  /* Start Timer */
-  //osTimerStart(osTimer, 200);		
+
 	osThreadDef(BLE, BLEThread, osPriorityIdle, 0, 2*configMINIMAL_STACK_SIZE);//蓝牙接收，最低的优先级
   osThreadCreate(osThread(BLE), NULL);
 	
