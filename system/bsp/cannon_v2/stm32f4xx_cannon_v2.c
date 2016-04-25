@@ -189,7 +189,7 @@ void BSP_LED_Init(Led_TypeDef Led)
 
     HAL_GPIO_Init(GPIO_PORT[Led], &GPIO_InitStruct);
 
-    HAL_GPIO_WritePin(GPIO_PORT[Led], GPIO_PIN[Led], GPIO_PIN_RESET);
+   // HAL_GPIO_WritePin(GPIO_PORT[Led], GPIO_PIN[Led], GPIO_PIN_RESET);
 }
 
 /**

@@ -150,7 +150,7 @@ int main(void)
     /* Configure the system clock */
     SystemClock_Config();
     /* Configure LED0 */
-    //BSP_LED_Init(LED0);
+    BSP_LED_Init(LED0);
     /*UART2 init*/
     UART_Init();
     HAL_Delay(100);

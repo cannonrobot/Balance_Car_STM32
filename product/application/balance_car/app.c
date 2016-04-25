@@ -465,10 +465,10 @@ HAL_Delay(100);
 			osThreadDef(MusicControlThread, MusicControlThread, osPriorityAboveNormal, 0, 2*configMINIMAL_STACK_SIZE);//音乐播放器控制线程,比播放线程优先级高
 			osThreadCreate(osThread(MusicControlThread), NULL);
 	}
-	
-	//osThreadDef(uLEDThread, ToggleLEDsThread, osPriorityNormal, 0,configMINIMAL_STACK_SIZE);//指示灯，周期的闪烁
-	//osThreadCreate(osThread(uLEDThread), NULL);
-	
+	else{//这里如果使用了音乐播放那么就不能开LED了，PB3被用作IIC2中的的CLK了
+	osThreadDef(uLEDThread, ToggleLEDsThread, osPriorityNormal, 0,configMINIMAL_STACK_SIZE);//指示灯，周期的闪烁
+	osThreadCreate(osThread(uLEDThread), NULL);
+	}
 		osThreadDef(HeartBeatThread, HeartBeatthread, osPriorityLow, 0,configMINIMAL_STACK_SIZE);//心跳任务，低频率的发送相关信息到手机
 	osThreadCreate(osThread(HeartBeatThread), NULL);
 	
