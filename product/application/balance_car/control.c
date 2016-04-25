@@ -16,8 +16,8 @@ float 	turn_target_orientaion;
 int8_t	trun_mode;
 float Speed_Kp=11,Speed_Ki=2;	//速度控制PI
 float Turn_Kp=4,Turn_Kp2=3;							//转向控制P
-float Angle_Kp=130,Angle_Kd=12;	//角度控制PD
- float Car_Angle_Center=3;			//平衡点角度
+float Angle_Kp=125,Angle_Kd=12;	//角度控制PD
+ float Car_Angle_Center=-1;			//平衡点角度
  extern IMU_Offset MyOffset;
 imu_sensor_raw_data_t sensor_saw_data;//IMU和磁力计原始值
 imu_sensor_data_t sensor_data;//校准转换后的值，Offset见MyOffset参数
@@ -32,6 +32,8 @@ int16_t motor_output_temp;
 int16_t motor_output_Angle;
 int16_t motor_output_Speed;
 int16_t motor_output_Turn;
+int16_t steer_out[2][5]={0,0,0,0,0,
+												 0,0,0,0,0};//舵机定义二维数组，以一个数字越大优先级越高
  float speed_A;//速度和
  int32_t speed_L;//左边电机速度
  int32_t speed_R;//右边电机速度
@@ -39,6 +41,7 @@ int16_t motor_output_Turn;
  float Speed_ControlOutOld;
 float SpeedControlOutNew=0;
 float SpeedControlOutValue;
+float Encoder_Integral=0;												 
  int8_t Falled_Flag;
  int my_cnt=0;
 int MAG_Cnt=0;
@@ -68,7 +71,7 @@ int Speed_Incremental_PI (int Encoder,int Target)
 
 int Speed_PI (float Encoder,int Movement)
 {
-	static float Encoder_Integral,Target_Velocity,Pwm;
+	static float Target_Velocity,Pwm;
 	
 	Encoder_Integral +=Encoder;                                     
 		Encoder_Integral=Encoder_Integral+Movement;    
@@ -80,7 +83,7 @@ int Speed_PI (float Encoder,int Movement)
 }
 
 int My_Speed_PI(float Encoder,int Movement)
-{static float Encoder_Integral;
+{
 	static float fP;
 	fP=Encoder+Movement;
 	Encoder_Integral+=fP;

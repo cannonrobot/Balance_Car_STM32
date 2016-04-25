@@ -3,10 +3,10 @@
 FATFS SDFatFs;  /* File system object for SD disk logical drive */
 FIL MyFile;     /* File object */
 char SDPath[4]; /* SD disk logical drive path */ 
-
-
+extern int16_t steer_out[2][5];
+int steer[3];
 TIM_HandleTypeDef        TimHandleT1;//编码器
-TIM_HandleTypeDef        TimHandleT2;//舵机
+TIM_HandleTypeDef        TimHandleT2;//未用
 TIM_HandleTypeDef        TimHandleT3;//舵机
 TIM_HandleTypeDef        TimHandleT4;//电机
 TIM_HandleTypeDef        TimHandleT5;//编码器
@@ -120,20 +120,7 @@ if(FATFS_LinkDriver(&SD_Driver, SDPath) == 0)
           {
 						*/
             f_close(&MyFile);
-           BSP_LED_On(LED0);
-				BSP_LED_Toggle(LED0);
-        HAL_Delay(100);
-						BSP_LED_Toggle(LED0);
-        HAL_Delay(100);
-						BSP_LED_Toggle(LED0);
-        HAL_Delay(100);
-						BSP_LED_Toggle(LED0);
-        HAL_Delay(100);
-						BSP_LED_Toggle(LED0);
-        HAL_Delay(100);
-						BSP_LED_Toggle(LED0);
-        HAL_Delay(100);
-						BSP_LED_Toggle(LED0);
+       
        //   }
         }
 		}
@@ -296,19 +283,44 @@ void Steer_Pwm_Init(void){
 	
   TimHandleT3.Instance = TIM3;
   TimHandleT3.Init.Period =  1000 - 1;
-  TimHandleT3.Init.Prescaler = 840-1;
+  TimHandleT3.Init.Prescaler = 420-1;
   TimHandleT3.Init.ClockDivision = 0;
   TimHandleT3.Init.CounterMode = TIM_COUNTERMODE_UP;  
   HAL_TIM_PWM_Init(&TimHandleT3);
 
   pwmConfig.OCMode=TIM_OCMODE_PWM1;
-  pwmConfig.Pulse=450;
+  pwmConfig.Pulse=300;
   HAL_TIM_PWM_ConfigChannel(&TimHandleT3, &pwmConfig, TIM_CHANNEL_2);
   HAL_TIM_PWM_ConfigChannel(&TimHandleT3, &pwmConfig, TIM_CHANNEL_3);
   HAL_TIM_PWM_Start(&TimHandleT3, TIM_CHANNEL_3);
 	HAL_TIM_PWM_Start(&TimHandleT3, TIM_CHANNEL_2);
 	
 	
+	
+	__HAL_RCC_GPIOA_CLK_ENABLE();
+	 __HAL_RCC_TIM9_CLK_ENABLE();
+	  GPIO_InitStruct.Pin = GPIO_PIN_3;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
+  GPIO_InitStruct.Alternate = GPIO_AF3_TIM9;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+	
+	 TimHandleT9.Instance = TIM9;
+  TimHandleT9.Init.Period =  1000 - 1;
+  TimHandleT9.Init.Prescaler = 420-1;
+  TimHandleT9.Init.ClockDivision = 0;
+  TimHandleT9.Init.CounterMode = TIM_COUNTERMODE_UP;  
+  HAL_TIM_PWM_Init(&TimHandleT9);
+
+  pwmConfig.OCMode=TIM_OCMODE_PWM1;
+  pwmConfig.Pulse=300;
+  HAL_TIM_PWM_ConfigChannel(&TimHandleT9, &pwmConfig, TIM_CHANNEL_2);
+  HAL_TIM_PWM_Start(&TimHandleT9, TIM_CHANNEL_2);
+	
+	
+	
+	/*
 	// __HAL_RCC_GPIOB_CLK_ENABLE();
 	 __HAL_RCC_TIM2_CLK_ENABLE();
 	  GPIO_InitStruct.Pin = GPIO_PIN_10;
@@ -329,6 +341,7 @@ void Steer_Pwm_Init(void){
   pwmConfig.Pulse=450;
   HAL_TIM_PWM_ConfigChannel(&TimHandleT2, &pwmConfig, TIM_CHANNEL_3);
   HAL_TIM_PWM_Start(&TimHandleT2, TIM_CHANNEL_3);
+	*/
   }
 
 /**
@@ -364,7 +377,7 @@ static	float Pre_Speed_A;
     Speed_R-=65535;} 
 		//一阶低通滤波
 		
-		Speed_A=(Speed_R-Speed_L)/2.0*0.7+Pre_Speed_A*0.3;
+		Speed_A=(Speed_R-Speed_L)/2.0f*0.7f+Pre_Speed_A*0.3f;
 		Pre_Speed_A=Speed_A;
 		
 		
@@ -411,7 +424,7 @@ HAL_StatusTypeDef HAL_TIM_PWM_Pulse(TIM_HandleTypeDef *htim,  uint32_t Channel,u
 }
 
 
-
+extern float Encoder_Integral;
 uint8_t Fall_Detect(float Angle,float Target){
 	static uint8_t Falled_Flag=0;
 	float E_Angle;
@@ -421,8 +434,33 @@ uint8_t Fall_Detect(float Angle,float Target){
 		Falled_Flag=1;
 	}
 	else{
-		if(E_Angle>-10&&E_Angle<10)
+		if(E_Angle>-5&&E_Angle<5){
 		Falled_Flag=0;
+		Encoder_Integral=0;
+		}
 	}
 		return Falled_Flag;
 }
+
+void Steer_Control(int16_t steer_out[2][5]){//舵机控制200HZ，30%是中间值，50%和10%是最小值
+	
+	static int pre_steer[3];
+		for(int i=0;i<2;i++){
+			for(int j=0;j<3;j++){
+			if(steer_out[i][j]!=0)
+				steer[j]=steer_out[i][j];
+			}
+		}
+		if(pre_steer[0]!=steer[0]){
+				HAL_TIM_PWM_Pulse(&TimHandleT9,TIM_CHANNEL_2,(steer[0]*2+300));
+		pre_steer[0]=steer[0];}
+		
+		if(pre_steer[1]!=steer[1]){
+				HAL_TIM_PWM_Pulse(&TimHandleT3,TIM_CHANNEL_2,(steer[1]*2+300));
+			pre_steer[1]=steer[1];}
+		
+		if(pre_steer[2]!=steer[2]){
+				HAL_TIM_PWM_Pulse(&TimHandleT3,TIM_CHANNEL_3,(steer[2]*2+300));	
+			pre_steer[2]=steer[2];}
+}
+

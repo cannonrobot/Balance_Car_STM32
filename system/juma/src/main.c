@@ -48,7 +48,7 @@
 //#include "dispatch.h"
 #include "stm32f4xx_hal_msp.h"
 #include "juma_sensor.h"
-
+#include "cmsis_os.h"
 
 extern uint32_t sleep_time;
 __IO uint32_t uwCounter = 0;
@@ -150,7 +150,7 @@ int main(void)
     /* Configure the system clock */
     SystemClock_Config();
     /* Configure LED0 */
-    BSP_LED_Init(LED0);
+    //BSP_LED_Init(LED0);
     /*UART2 init*/
     UART_Init();
     HAL_Delay(100);
@@ -158,14 +158,18 @@ int main(void)
     #ifndef SENSOR_FIFO
       jsensor_sys_init();
     #endif
-    /* Initialize the BlueNRG SPI driver */
-    BNRG_SPI_Init();
+		
+ 	 /* Initialize the BlueNRG SPI driver */
+  // BNRG_SPI_Init();
     /* Initialize the BlueNRG HCI */
-    HCI_Init();
+  // HCI_Init();
     /* Reset BlueNRG hardware */
-    BlueNRG_RST();
+  //  BlueNRG_RST();
     /*Gatt And Gap Init*/
-    ble_init_bluenrg();
+ //  ble_init_bluenrg();
+
+		
+   
     /* Enable Power Clock */
     __HAL_RCC_PWR_CLK_ENABLE();
 
@@ -196,7 +200,7 @@ int main(void)
     }
 		*/
 }
-
+/*
 static void send_acc_data(void * args)
 {
 
@@ -217,11 +221,11 @@ void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc)
 
 void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc)
 {
-    /* Turn LED0 on: Alarm generation */
+
     BSP_LED_On(LED0);
 }
 
-
+*/
 void sleep_flag_set(uint8_t flag)
 {
     sleep_flag = flag;

@@ -1,7 +1,7 @@
 
 #include "app.h"
 #include "cmsis_os.h"
-
+#include "stm32_bluenrg_ble.h"
 /*start adv*/
 
 #if 0 //NO_PRINTF
@@ -74,9 +74,8 @@ extern int8_t	trun_mode;
 extern int16_t motor_output_Turn;	
 	extern int fifo_length;
 	
-	extern TIM_HandleTypeDef        TimHandleT2;//舵机
 extern   TIM_HandleTypeDef        TimHandleT3;//舵机
-
+extern   TIM_HandleTypeDef        TimHandleT9;//舵机
 extern __IO uint32_t PauseResumeStatus;
 extern char USBDISKPath[4];  
 extern FATFS USBDISKFatFs;   
@@ -85,11 +84,16 @@ extern  MSC_ApplicationTypeDef AppliState;
  extern __IO uint32_t AudioPlayStart ;
 extern 	float heading;
 extern IMU_Offset MyOffset;
+extern int16_t steer_out[2][5];
 int temp=450;//程序调试使用的全局变量
 int temp2=0;
  xQueueHandle  TXQueue;				//用于蓝牙发送的列队
- static osMutexId osMutexSPI; 		//用于IIC不可重入函数的互斥量
+ static osMutexId osMutexSPI; 		//用于SPI不可重入函数的互斥量
+  osMutexId osMutexIIC; 					//用于IIC不可重入函数的互斥量
  osSemaphoreId osSemaphore_MWMS_EXTI;		//用于中断的信号量
+  osSemaphoreId osSemaphore_SPI;		//用于中断的信号量
+	
+extern	int steer[3];
 typedef struct 
  {
 	uint8_t type;
@@ -105,27 +109,50 @@ static void osTimerCallback (void const *argument)
 }
 */
  
+   static void InitThread(void const *argument)
+{     uint8_t tx_power_level = 7;
+    uint16_t adv_interval = 100;
+    uint8_t bdAddr[6];
+  
+		 /* Initialize the BlueNRG SPI driver */
+    BNRG_SPI_Init();
+    /* Initialize the BlueNRG HCI */
+    HCI_Init();
+    /* Reset BlueNRG hardware */
+    BlueNRG_RST();
+    /*Gatt And Gap Init*/
+    ble_init_bluenrg();
+   HCI_get_bdAddr(bdAddr);
+    adv_name_generate(bdAddr+4);
+
+    ble_set_adv_param(name, bdAddr, tx_power_level, adv_interval);
+    ble_device_start_advertising();
+	vTaskDelete(NULL);
+}
+ 
+ 
+  static void SPIISRhread(void const *argument)
+{  portBASE_TYPE taskWoken = pdFALSE;  
+  for(;;)
+  {
+		if(xSemaphoreTake( osSemaphore_SPI, portMAX_DELAY )==pdTRUE)
+      {
+				 if(osMutexWait(osMutexSPI, osWaitForever) == osOK)
+				   HCI_Isr();
+				 osMutexRelease(osMutexSPI);
+      }
+  }
+}
+
  static void CarControlhread(void const *argument)
 {  portBASE_TYPE taskWoken = pdFALSE;  
   for(;;)
   {
-		// if(osSemaphoreWait(osSemaphore , 0) == osOK)
-      {
-        
-      }
-		
-		//  if (xSemaphoreTakeFromISR(osSemaphore, &taskWoken) != pdTRUE) 
-		//		{
-		//		Error_Handler();
-		//		}
-				portEND_SWITCHING_ISR(taskWoken);
-		
 		if(xSemaphoreTake( osSemaphore_MWMS_EXTI, portMAX_DELAY )==pdTRUE)
-		// if(osSemaphoreWait(osSemaphore , 0) == osOK)
       {
+				 if(osMutexWait(osMutexIIC, osWaitForever) == osOK)
 				imu_sensor_read_data_from_fifo_DMA();
-     //  imu_sensor_dma_read_call_back();
-		//		  BSP_LED_Toggle(LED0);
+				   osMutexRelease(osMutexIIC);
       }
   }
 }
@@ -164,7 +191,7 @@ static void HeartBeatthread(void const *argument)
 			xQueueSend( TXQueue, ( void* )&RXMessage, 0 );  
 			}
 	
-		 	osDelay(2000);	
+		 	osDelay(2200);	
 	}
 }
 static void BLEThread(void const *argument)
@@ -204,13 +231,13 @@ static void mainThread(const void *argument){
 			getYaw(cha);
 		//	get_heading();
 			preTick=nowTick; 
+			Steer_Control(steer_out);
+			//temp++;
+			//if(temp>=500)temp=100;
+			//if(temp>=750)temp=150;
+		//	temp=300;
+		
 			
-			temp++;
-			if(temp>=750)temp=150;
-		//	if(temp>=550)temp=0;
-			 HAL_TIM_PWM_Pulse(&TimHandleT2,TIM_CHANNEL_3,temp);
-			HAL_TIM_PWM_Pulse(&TimHandleT3,TIM_CHANNEL_2,temp);
-			HAL_TIM_PWM_Pulse(&TimHandleT3,TIM_CHANNEL_3,temp);	
 		/*
 OutData[0] = sensor_saw_data.gyro[0];
 OutData[1] = sensor_saw_data.gyro[1];
@@ -221,10 +248,16 @@ OutData[2] = sensor_saw_data.gyro[2];
 
 
 
-OutData[0]=MData[0];
-OutData[1]=MData[1];
-OutData[2]=MData[2];				
+//OutData[0]=MData[0];
+//OutData[1]=MData[1];
+//OutData[2]=MData[2];				
+//OutData[0]=steer_out[0][0];
+//OutData[1]=steer_out[0][1];
+//OutData[2]=steer_out[0][2];
 
+OutData[0]=steer[0];
+OutData[1]=steer[1];
+OutData[2]=steer[2];
 
 //OutData[2] = fifo_length;
 //OutData[3] = cha;	
@@ -267,7 +300,7 @@ OutData[2]=MData[2];
 //OutData[0]=my_cnt;
 
 //OutData[2]= heading*10;
-OutData[3]= sensor_euler_angle.yaw*10;
+OutData[3]= sensor_euler_angle.pitch*10;
 	OutPut_Data();
 		}
 }
@@ -282,9 +315,9 @@ static void BLEMessageQueueConsumer (const void *argument)
 		if( xQueueReceive( TXQueue,  ( void* )&pxMessage, 10 ) )
 			{
 				
-				 if(osMutexWait(osMutexSPI, osWaitForever) == osOK){
+				 if(osMutexWait(osMutexSPI, osWaitForever) == osOK)
 				ble_device_send(pxMessage.type,pxMessage.length,pxMessage.value);
-				 }
+				 
 				 osMutexRelease(osMutexSPI);
 				
 			}
@@ -298,13 +331,14 @@ static void MusicPlayThread (const void *argument)
   for(;;)
   {	
 	//	MSC_Application();
-		 if(RepeatState == REPEAT_ON)
-      WavePlayerStart();
+	//	 if(RepeatState == REPEAT_ON)
+    //  WavePlayerStart();
+		AUDIO_PLAYER_Process();
 		//BSP_AUDIO_OUT_Reset(SOUNDTERMINAL_DEV1);
 	//	BSP_AUDIO_OUT_PowerOff(SOUNDTERMINAL_DEV1);
 	//	osDelay(50);	
 	//	BSP_AUDIO_OUT_PowerOn(SOUNDTERMINAL_DEV1);
-		osDelay(50);	
+		osDelay(5);	
 	}
 }
 
@@ -358,54 +392,59 @@ void on_ready(void)
     uint8_t bdAddr[6];
     uint32_t data_rate = 400;
 	
+HAL_Delay(100);
 	
 	/* Initialize STA350BW */
  // Init_AudioOut_Device();
   
   /* Start Audio Streaming*/
  // Start_AudioOut_Device();  
-
-    HCI_get_bdAddr(bdAddr);
-    adv_name_generate(bdAddr+4);
-
-    ble_set_adv_param(name, bdAddr, tx_power_level, adv_interval);
-    ble_device_start_advertising();
-
-    imu_sensor_select_features(ALL_ENABLE);
-
-    imu_sensor_reset();
-
-    imu_sensor_set_data_rate(&data_rate, LSM6DS3_XG_FIFO_MODE_CONTINUOUS_OVERWRITE);
-
-	//  imu_sensor_filter();
-	
-    imu_sensor_start();
-
-	 
-	 //HAL_Delay(100);
-		Motor_Pwm_Init();
-		Encoder_Init();         
-	Steer_Pwm_Init();
-	Adc_Init();
 	FATFS_LinkDriver(&SD_Driver, USBDISKPath);
 	 /* FatFs initialization fails */
   if(f_mount(&USBDISKFatFs, (TCHAR const*)USBDISKPath, 1 ) == FR_OK )  
        AppliState = APPLICATION_START;
-    
- 
+	
+   
+
+    imu_sensor_select_features(ALL_ENABLE);
+
+   imu_sensor_reset();
+
+    imu_sensor_set_data_rate(&data_rate, LSM6DS3_XG_FIFO_MODE_CONTINUOUS_OVERWRITE);
+
+	 // imu_sensor_filter();
+	
+    imu_sensor_start();
+
+
+	
+		Motor_Pwm_Init();
+		Encoder_Init();         
+	Steer_Pwm_Init();
+	Adc_Init();
+
+ AUDIO_PLAYER_Start(0);
 	
 //	  WavePlayerStart();
 //SD_Init();
+	
+	
 
   /* Creates the mutex */
   osMutexDef(osMutexSPI);//由于SPI是非可重入函数，这里需要使用互斥信号
   osMutexSPI = osMutexCreate(osMutex(osMutexSPI));
+	
+	  osMutexDef(osMutexIIC);//由于SPI是非可重入函数，这里需要使用互斥信号
+  osMutexIIC = osMutexCreate(osMutex(osMutexIIC));
+	
  
   TXQueue=xQueueCreate( 5 , 20 );//蓝牙发送列队，方便统一管理
 	
 
   osSemaphoreDef(SEM);
-  osSemaphore_MWMS_EXTI = osSemaphoreCreate(osSemaphore(SEM) , 1);
+ osSemaphore_MWMS_EXTI = osSemaphoreCreate(osSemaphore(SEM) , 1);
+   osSemaphoreDef(SEM1);
+ osSemaphore_SPI = osSemaphoreCreate(osSemaphore(SEM1) , 1);
 	
  /* Create Timer */
   //osTimerDef(LEDTimer, osTimerCallback);
@@ -422,22 +461,32 @@ void on_ready(void)
 	if( AppliState == APPLICATION_START){
 			osThreadDef(MusicPlayThread, MusicPlayThread, osPriorityIdle, 0, 3*configMINIMAL_STACK_SIZE);//音乐播放器播放线程
 			osThreadCreate(osThread(MusicPlayThread), NULL);
-	
+	  
 			osThreadDef(MusicControlThread, MusicControlThread, osPriorityAboveNormal, 0, 2*configMINIMAL_STACK_SIZE);//音乐播放器控制线程,比播放线程优先级高
 			osThreadCreate(osThread(MusicControlThread), NULL);
 	}
 	
-	osThreadDef(uLEDThread, ToggleLEDsThread, osPriorityNormal, 0,configMINIMAL_STACK_SIZE);//指示灯，周期的闪烁
-	osThreadCreate(osThread(uLEDThread), NULL);
+	//osThreadDef(uLEDThread, ToggleLEDsThread, osPriorityNormal, 0,configMINIMAL_STACK_SIZE);//指示灯，周期的闪烁
+	//osThreadCreate(osThread(uLEDThread), NULL);
 	
-		osThreadDef(HeartBeatThread, HeartBeatthread, osPriorityIdle, 0,configMINIMAL_STACK_SIZE);//心跳任务，低频率的发送相关信息到手机
+		osThreadDef(HeartBeatThread, HeartBeatthread, osPriorityLow, 0,configMINIMAL_STACK_SIZE);//心跳任务，低频率的发送相关信息到手机
 	osThreadCreate(osThread(HeartBeatThread), NULL);
 	
 	osThreadDef(mainThread, mainThread, osPriorityHigh, 0,2*configMINIMAL_STACK_SIZE);//主函数定时，高优先级
   osThreadCreate(osThread(mainThread), NULL);
 	
-	osThreadDef(CarControlhread, CarControlhread, osPriorityRealtime, 0,3*configMINIMAL_STACK_SIZE);//小车控制，最高优先级
-  osThreadCreate(osThread(CarControlhread), NULL);
+	//osThreadDef(CarControlhread, CarControlhread, osPriorityRealtime, 0,3*configMINIMAL_STACK_SIZE);//MEMS中断，最高优先级
+  //osThreadCreate(osThread(CarControlhread), NULL);
+	
+		osThreadDef(SPIISRhread, SPIISRhread, osPriorityRealtime,0,3*configMINIMAL_STACK_SIZE);//SPI中断，最高优先级
+  osThreadCreate(osThread(SPIISRhread), NULL);
+	
+	osThreadDef(InitThread, InitThread, osPriorityHigh, 0,3*configMINIMAL_STACK_SIZE);//BLE初始化任务,要比SPI中断低，要比发送和接收数据任务高，完成任务后删除自己
+ osThreadCreate(osThread(InitThread), NULL);
+	
+	
+	
+	
 	
 	
 		 osKernelStart();
@@ -521,6 +570,11 @@ void ble_device_on_message(uint8_t type, uint16_t length, uint8_t* value)
 				turn_target_orientaion=-p16Data[0];
 				trun_mode=1;
 			}
+			steer_out[0][0]=(p8Data[7]);
+			steer_out[0][1]=(p8Data[8]);
+			steer_out[0][2]=(p8Data[9]);
+			
+			
 			break;
 		case PARAMETER_MODIFY_ID://修改参数ID
 			if(Checksum(PARAMETER_MODIFY_LONG,value))return;

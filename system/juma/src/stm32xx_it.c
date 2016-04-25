@@ -164,8 +164,12 @@ void SysTick_Handler(void)
   * @param  None
   * @retval None
   */
+
+
 void BNRG_SPI_EXTI_IRQHandler(void)
 {
+	
+	
     HAL_GPIO_EXTI_IRQHandler(BNRG_SPI_EXTI_PIN);
 }
 /**
@@ -241,10 +245,10 @@ void EXTI0_IRQHandler(void)
 		//osSemaphoreRelease(osSemaphore);
 
 	
-	if(xSemaphoreGiveFromISR( osSemaphore_MWMS_EXTI, &xHigherPriorityTaskWoken )==1){
-	portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
-	}
-	//	imu_sensor_read_data_from_fifo_DMA();
+//	if(xSemaphoreGiveFromISR( osSemaphore_MWMS_EXTI, &xHigherPriorityTaskWoken )==1){
+//	portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
+//	}
+		imu_sensor_read_data_from_fifo_DMA();
 //    imu_sensor_read_data_from_fifo();
 //    printf("fifo interrupt \n");
   }

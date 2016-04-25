@@ -27,7 +27,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
+#include <string.h>
 /** @addtogroup STM32F4-Discovery_Audio_Player_Recorder
 * @{
 */ 
@@ -40,23 +40,16 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 int first_flag_my=0;
+WAVE_FormatTypeDef WaveFormat;
 
-
-char *Song_Name_List[20]={
-	"audio2.wav",
-	"2.wav"
-	"audio1.wav"
-	
-	
-	
-};
-
-
+FILELIST_FileTypeDef FileList;
 
 /* LED State (Toggle or OFF)*/
 __IO uint32_t LEDsState;
 
  __IO uint32_t RepeatState=REPEAT_OFF, PauseResumeStatus=IDLE_STATUS, PressCount=1;
+ 
+ static int16_t FilePos = 0;
 
 /* Audio Play Start variable. 
    Defined as external in main.c*/
@@ -66,7 +59,7 @@ __IO uint32_t AudioPlayStart = 0;
 static uint32_t WaveDataLength = 0;
 
 /* Audio wave remaining data length to be played */
-static __IO uint32_t AudioRemSize = 0;
+static __IO uint32_t AudioRemSize = 0,AudioElapseSize=0;
 
 /* Ping-Pong buffer used for audio play */
 uint8_t Audio_Buffer[AUDIO_BUFFER_SIZE];
@@ -89,6 +82,10 @@ DIR Directory;
 /* Defined in waverecorder.c */
  uint32_t WaveRecStatus=0;
 
+AUDIO_PLAYBACK_StateTypeDef AudioState;
+
+
+
 /* Variable to indicate USB state (start/idle) */
 /* Defined in main.c */
  MSC_ApplicationTypeDef AppliState=APPLICATION_IDLE;
@@ -101,6 +98,194 @@ char USBDISKPath[4];          /* USB Host logical drive path */
 /* Private function prototypes -----------------------------------------------*/
 
 /* Private functions ---------------------------------------------------------*/
+
+/**
+  * @brief  Starts Audio streaming.    
+  * @param  idx: File index
+  * @retval Audio error
+  */ 
+AUDIO_ErrorTypeDef AUDIO_PLAYER_Start(uint8_t idx)
+{
+   char path[] = "0:/";
+  	 UINT bytesread = 0;
+	FileList.file_P[0]=(uint8_t *)"bzdb.wav";
+	FileList.file_P[1]=(uint8_t *)"audio2.wav";
+	
+	
+	
+	
+  f_close(&FileRead);
+  //if(AUDIO_GetWavObjectNumber() > idx)
+  //{ 
+  if(f_opendir(&Directory, path) == FR_OK)
+  {
+    /* Open the Wave file to be played */
+		
+  //  if(f_open(&FileRead, (char *)FileList.file[FileList.ptr].name , FA_READ) == FR_OK)
+			  if(f_open(&FileRead, (char *)FileList.file_P[idx] , FA_READ) == FR_OK)
+    {  
+      /* Read sizeof(WaveFormat) from the selected file */
+      f_read (&FileRead, &WaveFormat, sizeof(WaveFormat), &bytesread);
+    }    
+  }
+    /*Adjust the Audio frequency */
+    WavePlayerInit(WaveFormat.SampleRate);
+	
+   BufferOffset= BUFFER_OFFSET_NONE;
+    
+    /* Get Data from USB Flash Disk */
+    f_lseek(&FileRead, 0);
+    
+    /* Fill whole buffer at first time */
+    f_read (&FileRead, &Audio_Buffer[0], AUDIO_BUFFER_SIZE, &bytesread);
+    {
+      AudioState = AUDIO_STATE_PLAY;
+      { 
+        if(bytesread != 0)
+        {
+            AudioElapseSize = bytesread;
+					 /* Start playing Wave */
+						BSP_AUDIO_OUT_Play(SOUNDTERMINAL_DEV1,(uint16_t*)&Audio_Buffer[0], AUDIO_BUFFER_SIZE);
+          return AUDIO_ERROR_NONE;
+        }
+      }
+    }
+ // }
+  return AUDIO_ERROR_IO;
+}
+
+/**
+  * @brief  Manages Audio process. 
+  * @param  None
+  * @retval Audio error
+  */
+AUDIO_ErrorTypeDef AUDIO_PLAYER_Process(void)
+{
+  uint32_t bytesread, elapsed_time;
+  AUDIO_ErrorTypeDef audio_error = AUDIO_ERROR_NONE;
+  static uint32_t prev_elapsed_time = 0xFFFFFFFF;
+  uint8_t str[10];  
+  
+  switch(AudioState)
+  {
+  case AUDIO_STATE_PLAY:
+    if(AudioElapseSize >= WaveFormat.FileSize)
+    {
+     WavePlayerStop();
+		
+     // AudioState = AUDIO_STATE_IDLE;
+			    AudioState =AUDIO_STATE_PLAY_P;
+    }
+    
+	
+      
+      if(BufferOffset == BUFFER_OFFSET_HALF)
+      {
+        f_read(&FileRead, 
+               &Audio_Buffer[0], 
+               AUDIO_BUFFER_SIZE/2, 
+               (void *)&bytesread); 
+        
+        BufferOffset = BUFFER_OFFSET_NONE;
+				AudioElapseSize+=bytesread;
+      }
+      
+      if(BufferOffset == BUFFER_OFFSET_FULL)
+      {
+        f_read(&FileRead, 
+               &Audio_Buffer[AUDIO_BUFFER_SIZE/2], 
+               AUDIO_BUFFER_SIZE/2, 
+               (void *)&bytesread); 
+        
+        BufferOffset = BUFFER_OFFSET_NONE;
+				AudioElapseSize+=bytesread;
+      } 
+			
+			/*
+      if(AudioRemSize > (AUDIO_BUFFER_SIZE / 2))
+      {
+        AudioRemSize -= bytesread;
+      }
+      else
+      {
+        AudioRemSize = 0;
+      }
+			*/
+   
+    break;
+    
+  case AUDIO_STATE_STOP:
+    WavePlayerStop();
+    AudioState = AUDIO_STATE_IDLE; 
+    audio_error = AUDIO_ERROR_IO;
+    break;
+	case AUDIO_STATE_PLAY_P:
+		   WavePlayerStop();
+    AUDIO_PLAYER_Start(1);
+		break;
+  case AUDIO_STATE_NEXT:
+  //  if(++FilePos >= AUDIO_GetWavObjectNumber())
+    {
+  //    FilePos = 0; 
+    }
+  //  WavePlayerStop();
+  //  AUDIO_PLAYER_Start(FilePos);
+    break;    
+    
+  case AUDIO_STATE_PREVIOUS:
+  //  if(--FilePos < 0)
+    {
+  //    FilePos = AUDIO_GetWavObjectNumber() - 1; 
+    }
+  //  WavePlayerStop();
+  //  AUDIO_PLAYER_Start(FilePos);
+    break;   
+    
+  case AUDIO_STATE_PAUSE:
+    BSP_AUDIO_OUT_Pause(SOUNDTERMINAL_DEV1);
+    AudioState = AUDIO_STATE_WAIT;
+    break;
+    
+  case AUDIO_STATE_RESUME:
+   
+    BSP_AUDIO_OUT_Resume(SOUNDTERMINAL_DEV1);
+    AudioState = AUDIO_STATE_PLAY;
+    break;
+    
+  case AUDIO_STATE_VOLUME_UP: 
+    if( Volume <= 90)
+    {
+      Volume += 10;
+    }
+    BSP_AUDIO_OUT_SetVolume(SOUNDTERMINAL_DEV1,STA350BW_CHANNEL_MASTER,Volume);
+    AudioState = AUDIO_STATE_PLAY;
+    break;
+    
+  case AUDIO_STATE_VOLUME_DOWN:    
+    if( Volume >= 10)
+    {
+      Volume -= 10;
+    }
+    BSP_AUDIO_OUT_SetVolume(SOUNDTERMINAL_DEV1,STA350BW_CHANNEL_MASTER,Volume);
+    AudioState = AUDIO_STATE_PLAY;
+    break;
+    
+  case AUDIO_STATE_WAIT:
+  case AUDIO_STATE_IDLE:
+  case AUDIO_STATE_INIT:    
+  default:
+    /* Do Nothing */
+    break;
+  }
+  return audio_error;
+}
+
+
+
+
+
+
+
 
 /**
   * @brief  Plays Wave from a mass storage.
@@ -134,7 +319,7 @@ void WavePlayBack(uint32_t AudioFreq)
   BSP_AUDIO_OUT_Play(SOUNDTERMINAL_DEV1,(uint16_t*)&Audio_Buffer[0], AUDIO_BUFFER_SIZE);
   //LEDsState = LED6_TOGGLE;
   PauseResumeStatus = RESUME_STATUS;
-  PressCount = 0;
+
   
   /* Check if the device is connected.*/
   while((AudioRemSize != 0) && (AppliState != APPLICATION_IDLE))
@@ -199,24 +384,12 @@ void WavePlayBack(uint32_t AudioFreq)
       break;
     }
   }
-#ifdef PLAY_REPEAT_DISABLED 
-  RepeatState = REPEAT_OFF;
-  /* Stop playing Wave */
-  WavePlayerStop();
-  f_close(&FileRead);
-  /* Test on the command: Playing */
-  if(CmdIndex == CMD_PLAY)
-  {
-    LEDsState = LED4_TOGGLE;
-  }
-#else 
-//  LEDsState = LEDS_OFF;
+
   RepeatState = REPEAT_ON;
   AudioPlayStart = 0;
   /* Stop playing Wave */
   WavePlayerStop();
   f_close(&FileRead);
-#endif /* PLAY_REPEAT_DISABLED */
 }
 
 /**
@@ -244,6 +417,7 @@ void WavePlayerPauseResume(uint32_t wState)
 void WavePlayerStop(void)
 { 
   BSP_AUDIO_OUT_Stop(SOUNDTERMINAL_DEV1);
+	f_close(&FileRead);
 }
  
 /**
@@ -316,26 +490,23 @@ void WavePlayerStart(void)
   char* wavefilename = NULL;
   WAVE_FormatTypeDef waveformat;
   
+  FileList.ptr_P=0;
+	FileList.file_P[0]=(uint8_t *)"bzdb.wav";
+	FileList.file_P[1]=(uint8_t *)"audio2.wav";
+	
+	//	FileList.ptr=0;
+	// strncpy((char *)FileList.file[FileList.ptr].name, (char *)"bzdb.wav", FILEMGR_FILE_NAME_SIZE);
+	
+	
   /* Get the read out protection status */
   if(f_opendir(&Directory, path) == FR_OK)
   {
-    if(WaveRecStatus == 1)
-    {
-      wavefilename = REC_WAVE_NAME;
-    }
-    else
-    {
-  //    wavefilename = WAVE_NAME; 
-			wavefilename=Song_Name_List[0];
-    }
     /* Open the Wave file to be played */
-    if(f_open(&FileRead, wavefilename , FA_READ) != FR_OK)
-    {
-    
-      CmdIndex = CMD_RECORD;
-    }
-    else
-    {    
+		
+  //  if(f_open(&FileRead, (char *)FileList.file[FileList.ptr].name , FA_READ) == FR_OK)
+			  if(f_open(&FileRead, (char *)FileList.file_P[FileList.ptr_P] , FA_READ) == FR_OK)
+  
+    {  
       /* Read sizeof(WaveFormat) from the selected file */
       f_read (&FileRead, &waveformat, sizeof(waveformat), &bytesread);
       

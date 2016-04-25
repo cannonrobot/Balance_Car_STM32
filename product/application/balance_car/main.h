@@ -56,6 +56,45 @@ typedef enum
 MSC_ApplicationTypeDef;
 
 
+#define FILEMGR_LIST_DEPDTH                        24
+#define FILEMGR_FILE_NAME_SIZE                     11//由于没有开启操作系统的长字节使能这里只能有11个字节
+
+
+typedef enum {
+  AUDIO_STATE_IDLE = 0,
+  AUDIO_STATE_WAIT,    
+  AUDIO_STATE_INIT,    
+  AUDIO_STATE_PLAY,
+	AUDIO_STATE_PLAY_P,//播放指定名称文件
+  AUDIO_STATE_RECORD,  
+  AUDIO_STATE_NEXT,  
+  AUDIO_STATE_PREVIOUS,
+  AUDIO_STATE_FORWARD,   
+  AUDIO_STATE_BACKWARD,
+  AUDIO_STATE_STOP,   
+  AUDIO_STATE_PAUSE,
+  AUDIO_STATE_RESUME,
+  AUDIO_STATE_VOLUME_UP,
+  AUDIO_STATE_VOLUME_DOWN,
+  AUDIO_STATE_ERROR,  
+}AUDIO_PLAYBACK_StateTypeDef;
+
+
+
+
+
+typedef struct _FILELIST_LineTypeDef {
+  uint8_t type;
+  uint8_t name[FILEMGR_FILE_NAME_SIZE];
+}FILELIST_LineTypeDef;
+
+typedef struct _FILELIST_FileTypeDef {
+  FILELIST_LineTypeDef  file[FILEMGR_LIST_DEPDTH] ;//用于保存从内存卡搜索到的歌曲
+	uint8_t* file_P[FILEMGR_LIST_DEPDTH];							//用于保存固定的歌曲指针								
+  uint16_t              ptr; 												//搜索到的歌曲的指示
+	uint8_t               ptr_P;											//固定歌曲的指示
+}FILELIST_FileTypeDef;
+
 /* You can change the Wave file name as you need, but do not exceed 11 characters */
 #define WAVE_NAME "bzdb.wav"
 #define REC_WAVE_NAME "0:rec.wav"

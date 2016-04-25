@@ -3,4 +3,4 @@
 ##Introduction
 
 
-This application is used for controlling balance car
+This application is used for controlling balance car, ON distance measurement, NO obstacle avoidance

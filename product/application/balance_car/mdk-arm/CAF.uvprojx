@@ -458,6 +458,11 @@
               <FileType>1</FileType>
               <FilePath>..\waveplayer.c</FilePath>
             </File>
+            <File>
+              <FileName>vl6180x_application.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\vl6180x_application.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -748,6 +753,16 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\system\drivers\stm32f4xx_hal_driver\src\stm32f4xx_hal_i2s_ex.c</FilePath>
             </File>
+            <File>
+              <FileName>vl6180x_api.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\drivers\vl6180x\vl6180x_api.c</FilePath>
+            </File>
+            <File>
+              <FileName>vl6180x_i2c.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\drivers\vl6180x\vl6180x_i2c.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -845,6 +860,11 @@
               <FileName>x_nucleo_cca01m1_audio_f4.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\system\bsp\nucleo\x_nucleo_cca01m1_audio_f4.c</FilePath>
+            </File>
+            <File>
+              <FileName>x-nucleo-6180xa1.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\bsp\nucleo\x-nucleo-6180xa1.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1312,7 +1332,7 @@
               <MiscControls>--C99 --gnu </MiscControls>
               <Define>USE_HAL_DRIVER,STM32F401xE,USE_STM32F4XX_NUCLEO,ENABLE_SPI_FIX,BLUENRG_MS,RTC_LSE,CANNON_V2,SENSOR_FIFO,NO_PRINTF,I2C_DMA_MODE</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\system\drivers\hts221;..\..\..\..\system\drivers\lps25h;..\..\..\..\system\drivers\lps25hb;..\..\..\..\system\drivers\lsm303agr;..\..\..\..\system\drivers\lsm6ds3;..\..\..\..\system\drivers\stm32f4xx_hal_driver\inc;..\..\..\..\system\drivers\common;..\..\..\..\system\drivers\bluenrg\inc;..\..\..\..\system\drivers\bluenrg\bluenrg_ms;..\..\..\..\system\bsp\nucleo;..\..\..\..\system\bsp\cannon_v2;..\..\..\..\system\juma\inc;..\..\..\..\system\cmiss\device\st\inc;..\..\..\..\system\cmiss\include;..\..\balance_car;..\..\..\..\system\FatFs\src;..\..\..\..\system\FatFs\src\drivers;..\..\..\..\system\FreeRTOS\Source\portable\RVDS\ARM_CM4F;..\..\..\..\system\FreeRTOS\Source\include;..\..\..\..\system\FreeRTOS\Source\CMSIS_RTOS;..\..\..\..\system\BiquadCalculator;..\..\..\..\system\drivers\sta350bw</IncludePath>
+              <IncludePath>..\..\..\..\system\drivers\hts221;..\..\..\..\system\drivers\lps25h;..\..\..\..\system\drivers\lps25hb;..\..\..\..\system\drivers\lsm303agr;..\..\..\..\system\drivers\lsm6ds3;..\..\..\..\system\drivers\stm32f4xx_hal_driver\inc;..\..\..\..\system\drivers\common;..\..\..\..\system\drivers\bluenrg\inc;..\..\..\..\system\drivers\bluenrg\bluenrg_ms;..\..\..\..\system\bsp\nucleo;..\..\..\..\system\bsp\cannon_v2;..\..\..\..\system\juma\inc;..\..\..\..\system\cmiss\device\st\inc;..\..\..\..\system\cmiss\include;..\..\balance_car;..\..\..\..\system\FatFs\src;..\..\..\..\system\FatFs\src\drivers;..\..\..\..\system\FreeRTOS\Source\portable\RVDS\ARM_CM4F;..\..\..\..\system\FreeRTOS\Source\include;..\..\..\..\system\FreeRTOS\Source\CMSIS_RTOS;..\..\..\..\system\BiquadCalculator;..\..\..\..\system\drivers\sta350bw;..\..\..\..\system\drivers\vl6180x</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1404,6 +1424,11 @@
               <FileName>waveplayer.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\waveplayer.c</FilePath>
+            </File>
+            <File>
+              <FileName>vl6180x_application.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\vl6180x_application.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1695,6 +1720,16 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\system\drivers\stm32f4xx_hal_driver\src\stm32f4xx_hal_i2s_ex.c</FilePath>
             </File>
+            <File>
+              <FileName>vl6180x_api.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\drivers\vl6180x\vl6180x_api.c</FilePath>
+            </File>
+            <File>
+              <FileName>vl6180x_i2c.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\drivers\vl6180x\vl6180x_i2c.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1792,6 +1827,11 @@
               <FileName>x_nucleo_cca01m1_audio_f4.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\system\bsp\nucleo\x_nucleo_cca01m1_audio_f4.c</FilePath>
+            </File>
+            <File>
+              <FileName>x-nucleo-6180xa1.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\system\bsp\nucleo\x-nucleo-6180xa1.c</FilePath>
             </File>
           </Files>
         </Group>

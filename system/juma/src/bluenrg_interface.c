@@ -42,17 +42,23 @@
 #include "ble_status.h"
 #include "hci.h"
 #include "stm32_bluenrg_ble.h"
-
+#include "cmsis_os.h"
 extern SPI_HandleTypeDef SpiHandle;
-
+extern osSemaphoreId osSemaphore_SPI;	
 /**
  * @brief  EXTI line detection callback.
  * @param  Specifies the pins connected EXTI line
  * @retval None
  */
+ 
+ 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-    HCI_Isr();
+		static portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
+		if(xSemaphoreGiveFromISR( osSemaphore_SPI, &xHigherPriorityTaskWoken )==1){
+			portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
+			}
+    //HCI_Isr();
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

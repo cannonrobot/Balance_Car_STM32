@@ -37,7 +37,7 @@
 */
 /* Includes ------------------------------------------------------------------*/
 #include "x_nucleo_cca01m1.h"
-
+#include "cmsis_os.h"
 #ifndef NULL
 #define NULL      (void *) 0
 #endif
@@ -60,6 +60,8 @@
 */ 
 static uint32_t I2C_EXPBD_Timeout = NUCLEO_I2C_EXPBD_TIMEOUT_MAX;    /*<! Value of Timeout when I2C communication fails */
 static I2C_HandleTypeDef    I2C_EXPBD_Handle;  
+
+extern   osMutexId osMutexIIC; 
 /**
 * @}
 */
@@ -122,11 +124,12 @@ uint8_t STA350BW_I2C_Init(void)
 * @retval HAL_OK if everithing went fine, HAL_ERROR otherwise
 */
 uint8_t STA350BW_I2C_ReadMulti(uint8_t *pBuffer, uint8_t addr, uint8_t reg, uint16_t length)
-{
+{ 
   if(I2C_EXPBD_ReadMulti(pBuffer, addr, reg, length) != HAL_OK)
-  {
+  { 
     return HAL_ERROR;
   }
+	
   return HAL_OK;
 }
 
@@ -220,7 +223,7 @@ static HAL_StatusTypeDef I2C_EXPBD_Init(void)
 #endif
     I2C_EXPBD_Handle.Init.OwnAddress1 = 0x33;
     I2C_EXPBD_Handle.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
-    I2C_EXPBD_Handle.Instance = NUCLEO_I2C_EXPBD;    
+    I2C_EXPBD_Handle.Instance = I2C2;    
     I2C_EXPBD_Handle.Init.DualAddressMode =I2C_DUALADDRESS_DISABLED;
     I2C_EXPBD_Handle.Init.GeneralCallMode  = I2C_GENERALCALL_DISABLED;
     I2C_EXPBD_Handle.Init.NoStretchMode    = I2C_NOSTRETCH_DISABLED;
@@ -243,10 +246,10 @@ static HAL_StatusTypeDef I2C_EXPBD_Init(void)
 static HAL_StatusTypeDef I2C_EXPBD_WriteMulti(uint8_t* pBuffer, uint8_t Addr, uint8_t Reg, uint16_t Size)
 {
   HAL_StatusTypeDef status = HAL_OK;
-  
+//  if(osMutexWait(osMutexIIC, osWaitForever) == osOK)
   status = HAL_I2C_Mem_Write(&I2C_EXPBD_Handle, Addr, (uint16_t)Reg, I2C_MEMADD_SIZE_8BIT, pBuffer, Size,
                              I2C_EXPBD_Timeout);
-  
+ //  osMutexRelease(osMutexIIC);
   /* Check the communication status */
   if(status != HAL_OK)
   {
@@ -269,10 +272,10 @@ static HAL_StatusTypeDef I2C_EXPBD_WriteMulti(uint8_t* pBuffer, uint8_t Addr, ui
 static HAL_StatusTypeDef I2C_EXPBD_ReadMulti(uint8_t* pBuffer, uint8_t Addr, uint8_t Reg, uint16_t Size)
 {
   HAL_StatusTypeDef status = HAL_OK;
-  
+ // if(osMutexWait(osMutexIIC, osWaitForever) == osOK)
   status = HAL_I2C_Mem_Read(&I2C_EXPBD_Handle, Addr, (uint16_t)Reg, I2C_MEMADD_SIZE_8BIT, pBuffer, Size,
                             I2C_EXPBD_Timeout);
-  
+ //    osMutexRelease(osMutexIIC);
   /* Check the communication status */
   if(status != HAL_OK)
   {
@@ -293,10 +296,10 @@ static HAL_StatusTypeDef I2C_EXPBD_ReadMulti(uint8_t* pBuffer, uint8_t Addr, uin
 static HAL_StatusTypeDef I2C_EXPBD_Write(uint8_t Addr, uint8_t Reg, uint8_t Value)
 {
   HAL_StatusTypeDef status = HAL_OK;
-  
+ // if(osMutexWait(osMutexIIC, osWaitForever) == osOK)
   status = HAL_I2C_Mem_Write(&I2C_EXPBD_Handle, Addr, (uint16_t)Reg, I2C_MEMADD_SIZE_8BIT, &Value, 1,
                              I2C_EXPBD_Timeout);
-  
+ //    osMutexRelease(osMutexIIC);
   /* Check the communication status */
   if(status != HAL_OK)
   {
@@ -319,8 +322,10 @@ static HAL_StatusTypeDef I2C_EXPBD_Write(uint8_t Addr, uint8_t Reg, uint8_t Valu
 static uint8_t I2C_EXPBD_Read(uint8_t Addr, uint8_t Reg, uint8_t * Value)
 {
   HAL_StatusTypeDef status = HAL_OK;  
+	//if(osMutexWait(osMutexIIC, osWaitForever) == osOK)
   status = HAL_I2C_Mem_Read(&I2C_EXPBD_Handle, Addr, (uint16_t)Reg, I2C_MEMADD_SIZE_8BIT, Value, 1,
                             I2C_EXPBD_Timeout);  
+//	   osMutexRelease(osMutexIIC);
   /* Check the communication status */
   if(status != HAL_OK)
   {
@@ -357,7 +362,7 @@ static void I2C_EXPBD_MspInit(void)
   NUCLEO_I2C_EXPBD_SCL_SDA_GPIO_CLK_ENABLE();
   
   /* I2C_EXPBD SCL and SDA pins configuration -------------------------------------*/
-  GPIO_InitStruct.Pin = NUCLEO_I2C_EXPBD_SCL_PIN | NUCLEO_I2C_EXPBD_SDA_PIN;
+  GPIO_InitStruct.Pin =  GPIO_PIN_10;
   GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
 #if ((defined (USE_STM32F4XX_NUCLEO)) || (defined (USE_STM32L0XX_NUCLEO)))
   GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
@@ -367,26 +372,29 @@ static void I2C_EXPBD_MspInit(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_MEDIUM;
 #endif
   GPIO_InitStruct.Pull  = GPIO_PULLUP;//GPIO_NOPULL;
-  GPIO_InitStruct.Alternate  = NUCLEO_I2C_EXPBD_SCL_SDA_AF;
+  GPIO_InitStruct.Alternate  = GPIO_AF4_I2C2;
   HAL_GPIO_Init(NUCLEO_I2C_EXPBD_SCL_SDA_GPIO_PORT, &GPIO_InitStruct);
-  
+	
+	  GPIO_InitStruct.Pin =  GPIO_PIN_3;	
+   GPIO_InitStruct.Alternate  = GPIO_AF9_I2C2;
+	   HAL_GPIO_Init(NUCLEO_I2C_EXPBD_SCL_SDA_GPIO_PORT, &GPIO_InitStruct);
   /* Enable the I2C_EXPBD peripheral clock */
-  NUCLEO_I2C_EXPBD_CLK_ENABLE();
-  
+ // NUCLEO_I2C_EXPBD_CLK_ENABLE();
+  __I2C2_CLK_ENABLE();
   /* Force the I2C peripheral clock reset */
-  NUCLEO_I2C_EXPBD_FORCE_RESET();
-  
+  //NUCLEO_I2C_EXPBD_FORCE_RESET();
+  __I2C2_FORCE_RESET();
   /* Release the I2C peripheral clock reset */
-  NUCLEO_I2C_EXPBD_RELEASE_RESET();
-  
+ //NUCLEO_I2C_EXPBD_RELEASE_RESET();
+  __I2C2_RELEASE_RESET();
   /* Enable and set I2C_EXPBD Interrupt to the highest priority */
-  HAL_NVIC_SetPriority(NUCLEO_I2C_EXPBD_EV_IRQn, 0x0A, 0);
-  HAL_NVIC_EnableIRQ(NUCLEO_I2C_EXPBD_EV_IRQn);
+  //HAL_NVIC_SetPriority(NUCLEO_I2C_EXPBD_EV_IRQn, 0x0A, 0);
+  //HAL_NVIC_EnableIRQ(NUCLEO_I2C_EXPBD_EV_IRQn);
   
 #if ((defined (USE_STM32F4XX_NUCLEO)) || (defined (USE_STM32L1XX_NUCLEO)))
   /* Enable and set I2C_EXPBD Interrupt to the highest priority */
-  HAL_NVIC_SetPriority(NUCLEO_I2C_EXPBD_ER_IRQn, 0xA, 0);
-  HAL_NVIC_EnableIRQ(NUCLEO_I2C_EXPBD_ER_IRQn);
+  //HAL_NVIC_SetPriority(NUCLEO_I2C_EXPBD_ER_IRQn, 0xA, 0);
+  //HAL_NVIC_EnableIRQ(NUCLEO_I2C_EXPBD_ER_IRQn);
 #endif
 }
 

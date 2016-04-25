@@ -134,7 +134,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
     /*##-1- Enable peripherals and GPIO Clocks #################################*/
     /* Enable GPIO TX/RX clock */
     USARTx_TX_GPIO_CLK_ENABLE();
-    USARTx_RX_GPIO_CLK_ENABLE();
+ //   USARTx_RX_GPIO_CLK_ENABLE();
 
     /* Enable USARTx clock */
     USARTx_CLK_ENABLE();
@@ -150,10 +150,10 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
     HAL_GPIO_Init(USARTx_TX_GPIO_PORT, &GPIO_InitStruct);
 
     /* UART RX GPIO pin configuration  */
-    GPIO_InitStruct.Pin = USARTx_RX_PIN;
-    GPIO_InitStruct.Alternate = USARTx_RX_AF;
+   // GPIO_InitStruct.Pin = USARTx_RX_PIN;
+   // GPIO_InitStruct.Alternate = USARTx_RX_AF;
 
-    HAL_GPIO_Init(USARTx_RX_GPIO_PORT, &GPIO_InitStruct);
+   // HAL_GPIO_Init(USARTx_RX_GPIO_PORT, &GPIO_InitStruct);
 }
 
 /**

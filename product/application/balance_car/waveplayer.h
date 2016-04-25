@@ -58,6 +58,14 @@ typedef struct
   uint32_t   SubChunk2Size; /* 40 */    
 
 }WAVE_FormatTypeDef;
+
+
+typedef enum {
+  AUDIO_ERROR_NONE = 0,  
+  AUDIO_ERROR_IO,
+  AUDIO_ERROR_EOF,
+  AUDIO_ERROR_INVALID_VALUE,     
+}AUDIO_ErrorTypeDef;
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
@@ -68,6 +76,8 @@ void  WavePlayerPauseResume(uint32_t state);
 void  WavePlayerStart(void);
 void  WavePlayer_CallBack(void);
  void MSC_Application(void);
+AUDIO_ErrorTypeDef AUDIO_PLAYER_Start(uint8_t idx);
+AUDIO_ErrorTypeDef AUDIO_PLAYER_Process(void);
 #endif /* __WAVEPLAYER_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
