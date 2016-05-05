@@ -16,10 +16,16 @@ float 	turn_target_orientaion;
 int8_t	trun_mode;
 int8_t Flag_PickUp=0;
 int8_t Flag_Fall=0;
-float Speed_Kp=12,Speed_Ki=2;	//速度控制PI
-float Turn_Kp=3,Turn_Kp2=3;							//转向控制P
+float Turn_Kp=3,Turn_Kp2=3;	//转向控制P
+/*有重物时
+float Speed_Kp=12,Speed_Ki=2;	//速度控制PI						
 float Angle_Kp=170,Angle_Kd=17;	//角度控制PD
  float Car_Angle_Center=-5;			//平衡点角度
+ */
+ float Speed_Kp=11,Speed_Ki=2;	//速度控制PI
+float Angle_Kp=125,Angle_Kd=12;	//角度控制PD
+ float Car_Angle_Center=0;			//平衡点角度
+ 
  extern IMU_Offset MyOffset;
 imu_sensor_raw_data_t sensor_saw_data;//IMU和磁力计原始值
 imu_sensor_data_t sensor_data;//校准转换后的值，Offset见MyOffset参数
