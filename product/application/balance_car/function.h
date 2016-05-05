@@ -24,4 +24,7 @@ void	Adc_Init(void);
 	uint8_t Fall_Detect(float Angle,float Target);
 HAL_StatusTypeDef HAL_TIM_PWM_Pulse(TIM_HandleTypeDef *htim,  uint32_t Channel,uint32_t Pulse);
 void Steer_Control(int16_t steer_out[2][5]);
+int Pick_Up_Detect(float Angle,float Car_Angle_Center,int encoder_left,int encoder_right);
+void Stand_Up(float Angle,float Car_Angle_Center,int8_t Flag_Fall);
+int myabs(int a);
 #endif

@@ -35,7 +35,7 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 
-#define AUDIO_BUFFER_SIZE             4096
+#define AUDIO_BUFFER_SIZE             16384
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
@@ -43,6 +43,8 @@ int first_flag_my=0;
 WAVE_FormatTypeDef WaveFormat;
 
 FILELIST_FileTypeDef FileList;
+
+Music_List MusicList={0,0,0};//固定播放列表
 
 /* LED State (Toggle or OFF)*/
 __IO uint32_t LEDsState;
@@ -68,7 +70,7 @@ uint8_t Audio_Buffer[AUDIO_BUFFER_SIZE];
 __IO BUFFER_StateTypeDef BufferOffset = BUFFER_OFFSET_NONE;
 
 /* Initial Volume level (from 0 (Mute) to 100 (Max)) */
-static uint8_t Volume = 50;
+ uint8_t Volume = 50;
 
 /* Variable used to indicate audio mode (play, record or stop). */
 /* Defined in main.c */
@@ -108,8 +110,15 @@ AUDIO_ErrorTypeDef AUDIO_PLAYER_Start(uint8_t idx)
 {
    char path[] = "0:/";
   	 UINT bytesread = 0;
-	FileList.file_P[0]=(uint8_t *)"bzdb.wav";
-	FileList.file_P[1]=(uint8_t *)"audio2.wav";
+	FileList.file_P[0]=(uint8_t *)"ok.wav";
+	FileList.file_P[1]=(uint8_t *)"id.wav";
+	FileList.file_P[2]=(uint8_t *)"id2.wav";
+	FileList.file_P[3]=(uint8_t *)"temp.wav";
+	FileList.file_P[4]=(uint8_t *)"xpg.wav";//Song1:
+	FileList.file_P[5]=(uint8_t *)"dream.wav";//Song2:
+	FileList.file_P[6]=(uint8_t *)"爱的华.wav";//Song3:
+	FileList.file_P[7]=(uint8_t *)"gcw.wav";//Song4
+	FileList.file_P[8]=(uint8_t *)"qmgw.wav";//Song4
 	
 	
 	
@@ -130,7 +139,7 @@ AUDIO_ErrorTypeDef AUDIO_PLAYER_Start(uint8_t idx)
   }
     /*Adjust the Audio frequency */
     WavePlayerInit(WaveFormat.SampleRate);
-	
+
    BufferOffset= BUFFER_OFFSET_NONE;
     
     /* Get Data from USB Flash Disk */
@@ -173,12 +182,13 @@ AUDIO_ErrorTypeDef AUDIO_PLAYER_Process(void)
     {
      WavePlayerStop();
 		
-     // AudioState = AUDIO_STATE_IDLE;
-			    AudioState =AUDIO_STATE_PLAY_P;
+		//	if(MusicList.Music_List_Ptr++>=MusicList.Music_List_All){
+				AudioState = AUDIO_STATE_IDLE;
+		//	}
+		//	else{
+		//		 AudioState =AUDIO_STATE_PLAY_P;
+		//	}
     }
-    
-	
-      
       if(BufferOffset == BUFFER_OFFSET_HALF)
       {
         f_read(&FileRead, 
@@ -200,17 +210,6 @@ AUDIO_ErrorTypeDef AUDIO_PLAYER_Process(void)
         BufferOffset = BUFFER_OFFSET_NONE;
 				AudioElapseSize+=bytesread;
       } 
-			
-			/*
-      if(AudioRemSize > (AUDIO_BUFFER_SIZE / 2))
-      {
-        AudioRemSize -= bytesread;
-      }
-      else
-      {
-        AudioRemSize = 0;
-      }
-			*/
    
     break;
     
@@ -221,7 +220,7 @@ AUDIO_ErrorTypeDef AUDIO_PLAYER_Process(void)
     break;
 	case AUDIO_STATE_PLAY_P:
 		   WavePlayerStop();
-    AUDIO_PLAYER_Start(1);
+    AUDIO_PLAYER_Start(MusicList.list[MusicList.list[MusicList.Music_List_Ptr]]);
 		break;
   case AUDIO_STATE_NEXT:
   //  if(++FilePos >= AUDIO_GetWavObjectNumber())

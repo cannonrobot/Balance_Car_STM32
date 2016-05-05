@@ -95,6 +95,14 @@ typedef struct _FILELIST_FileTypeDef {
 	uint8_t               ptr_P;											//固定歌曲的指示
 }FILELIST_FileTypeDef;
 
+
+typedef struct Music_List{//音乐播放列表,这里主要用来播放数字，里面所有的曲目都是固定的
+	uint8_t list[FILEMGR_FILE_NAME_SIZE];
+	uint8_t Music_List_Ptr;
+	uint8_t Music_List_All;
+}Music_List;
+
+
 /* You can change the Wave file name as you need, but do not exceed 11 characters */
 #define WAVE_NAME "bzdb.wav"
 #define REC_WAVE_NAME "0:rec.wav"

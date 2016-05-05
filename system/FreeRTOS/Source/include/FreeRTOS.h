@@ -196,7 +196,7 @@ extern "C" {
 #endif
 
 #ifndef INCLUDE_eTaskGetState
-	#define INCLUDE_eTaskGetState 0
+	#define INCLUDE_eTaskGetState 1//这里因为需要修改了，如果不需要最好定义为0
 #endif
 
 #ifndef configUSE_RECURSIVE_MUTEXES

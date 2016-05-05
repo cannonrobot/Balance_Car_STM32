@@ -53,8 +53,6 @@
 extern uint32_t sleep_time;
 __IO uint32_t uwCounter = 0;
 
-static void send_acc_data(void * args);
-static void send_test_data(void * args);
 
 /** @addtogroup X-CUBE-BLE1_Applications
  *  @{
@@ -150,10 +148,10 @@ int main(void)
     /* Configure the system clock */
     SystemClock_Config();
     /* Configure LED0 */
-    BSP_LED_Init(LED0);
+ //   BSP_LED_Init(LED0);
     /*UART2 init*/
     UART_Init();
-    HAL_Delay(100);
+   // HAL_Delay(100);
     /*sensor layer init*/
     #ifndef SENSOR_FIFO
       jsensor_sys_init();

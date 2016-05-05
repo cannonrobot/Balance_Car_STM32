@@ -289,13 +289,11 @@ void Steer_Pwm_Init(void){
   HAL_TIM_PWM_Init(&TimHandleT3);
 
   pwmConfig.OCMode=TIM_OCMODE_PWM1;
-  pwmConfig.Pulse=300;
+  pwmConfig.Pulse=0;
   HAL_TIM_PWM_ConfigChannel(&TimHandleT3, &pwmConfig, TIM_CHANNEL_2);
   HAL_TIM_PWM_ConfigChannel(&TimHandleT3, &pwmConfig, TIM_CHANNEL_3);
   HAL_TIM_PWM_Start(&TimHandleT3, TIM_CHANNEL_3);
 	HAL_TIM_PWM_Start(&TimHandleT3, TIM_CHANNEL_2);
-	
-	
 	
 	__HAL_RCC_GPIOA_CLK_ENABLE();
 	 __HAL_RCC_TIM9_CLK_ENABLE();
@@ -314,11 +312,9 @@ void Steer_Pwm_Init(void){
   HAL_TIM_PWM_Init(&TimHandleT9);
 
   pwmConfig.OCMode=TIM_OCMODE_PWM1;
-  pwmConfig.Pulse=300;
+  pwmConfig.Pulse=0;
   HAL_TIM_PWM_ConfigChannel(&TimHandleT9, &pwmConfig, TIM_CHANNEL_2);
   HAL_TIM_PWM_Start(&TimHandleT9, TIM_CHANNEL_2);
-	
-	
 	
 	/*
 	// __HAL_RCC_GPIOB_CLK_ENABLE();
@@ -430,7 +426,7 @@ uint8_t Fall_Detect(float Angle,float Target){
 	float E_Angle;
 	E_Angle=Angle-Target;
 	if(Falled_Flag==0){
-		if(E_Angle>60||E_Angle<-60)
+		if(E_Angle>50||E_Angle<-50)
 		Falled_Flag=1;
 	}
 	else{
@@ -441,6 +437,79 @@ uint8_t Fall_Detect(float Angle,float Target){
 	}
 		return Falled_Flag;
 }
+/**************************************************************************
+函数功能：绝对值函数
+入口参数：int
+返回  值：unsigned int
+**************************************************************************/
+int myabs(int a)
+{ 		   
+	  int temp;
+		if(a<0)  temp=-a;  
+	  else temp=a;
+	  return temp;
+}
+/**************************************************************************
+函数功能：检测小车是否被拿起
+
+**************************************************************************/
+int Pick_Up_Detect(float Angle,float Car_Angle_Center,int encoder_left,int encoder_right)
+{ 	static uint16_t Pick_Up_flag=0;	   
+	 static uint16_t flag,count,count0,count1,count2;
+	
+	if(Pick_Up_flag==0){
+		if(flag==0)                                                                   //第一步
+		{
+	      if(myabs(encoder_left)+myabs(encoder_right)<30)                         //条件1，小车接近静止
+				count0++;
+        else 
+        count0=0;		
+        if(count0>10)				
+		    flag=1,count0=0; 
+		} 
+		if(flag==1)                                                                  //进入第二步
+		{
+		    if(++count1>200)       count1=0,flag=0;                                 //超时不再等待2000ms
+	      if((Angle>(-20+Car_Angle_Center))&&(Angle<(20+Car_Angle_Center)))   //条件2，小车是在0度附近被拿起
+		    flag=2; 
+		} 
+		if(flag==2)                                                                  //第三步
+		{
+		  if(++count2>100)       count2=0,flag=0;                                   //超时不再等待1000ms
+	    if(myabs(encoder_left+encoder_right)>200)                                 //条件3，小车的轮胎因为正反馈达到最大的转速   
+      {
+				flag=0;                                                                                     
+				Pick_Up_flag= 1;       
+         return   Pick_Up_flag;                                             //检测到小车被拿起
+			}
+		}
+	}
+	else{
+		 if(flag==0)                                               
+	 {
+	      if(Angle>(-10+Car_Angle_Center)&&Angle<(10+Car_Angle_Center)&&encoder_left==0&&encoder_right==0)         //条件1，小车是在0度附近的
+		    flag=1; 
+	 } 
+	 if(flag==1)                                               
+	 {
+		  if(++count>50)                                          //超时不再等待 500ms
+		  {
+				count=0;flag=0;
+		  }
+	    if(encoder_left<-3&&encoder_right<-3&&encoder_left>-30&&encoder_right>-30)                //条件2，小车的轮胎在未上电的时候被人为转动  
+      {
+				flag=0;
+				flag=0;
+				Pick_Up_flag= 0;       
+				Encoder_Integral=0;
+				return Pick_Up_flag;                                             //检测到小车被放下
+			}
+	 }
+	}
+	return Pick_Up_flag;  
+}
+
+
 
 void Steer_Control(int16_t steer_out[2][5]){//舵机控制200HZ，30%是中间值，50%和10%是最小值
 	
@@ -452,15 +521,57 @@ void Steer_Control(int16_t steer_out[2][5]){//舵机控制200HZ，30%是中间值，50%和1
 			}
 		}
 		if(pre_steer[0]!=steer[0]){
+			if(steer[0]>100)steer[0]=100;
+			else if(steer[0]<-100)steer[0]=-100;
 				HAL_TIM_PWM_Pulse(&TimHandleT9,TIM_CHANNEL_2,(steer[0]*2+300));
 		pre_steer[0]=steer[0];}
 		
 		if(pre_steer[1]!=steer[1]){
+						if(steer[1]>100)steer[1]=100;
+			else if(steer[1]<-100)steer[1]=-100;
 				HAL_TIM_PWM_Pulse(&TimHandleT3,TIM_CHANNEL_2,(steer[1]*2+300));
 			pre_steer[1]=steer[1];}
 		
 		if(pre_steer[2]!=steer[2]){
+				if(steer[2]>100)steer[2]=100;
+			else if(steer[2]<-100)steer[2]=-100;
 				HAL_TIM_PWM_Pulse(&TimHandleT3,TIM_CHANNEL_3,(steer[2]*2+300));	
 			pre_steer[2]=steer[2];}
 }
 
+void Stand_Up(float Angle,float Car_Angle_Center,int8_t Flag_Fall){
+	static uint16_t Fall_Cnt_Step1=0;
+	//static uint16_t	Fall_Cnt_Step2=0;
+	static int8_t Pre_Flag_Fall;
+	if((Flag_Fall==1)&&(Fall_Cnt_Step1<15)){
+		
+		if(Angle-Car_Angle_Center>0){
+					steer_out[1][1]=-100;
+					steer_out[1][2]=100;
+				}
+				else {
+					steer_out[1][1]=100;
+					steer_out[1][2]=-100;
+				}
+				
+		Fall_Cnt_Step1++;
+	}
+	//else if((Flag_Fall==1)&&(Fall_Cnt_Step2<15)){
+	//	steer_out[1][1]=-8;//不能设置为0
+	//	steer_out[1][2]=1;
+	//		Fall_Cnt_Step2++;
+	//}
+	else if(Flag_Fall==1){
+		
+		Fall_Cnt_Step1=0;
+	//	Fall_Cnt_Step2=0;
+	}
+	else if(Flag_Fall==0&&Pre_Flag_Fall==1){
+		
+		steer_out[1][1]=0;
+		steer_out[1][2]=0;
+		Fall_Cnt_Step1=0;
+	//	Fall_Cnt_Step2=0;
+	}
+	Pre_Flag_Fall=Flag_Fall;
+}

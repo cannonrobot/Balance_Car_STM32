@@ -237,7 +237,7 @@ extern osSemaphoreId osSemaphore_MWMS_EXTI;		//用于中断的信号量
 /*lsm6ds3*/
 void EXTI0_IRQHandler(void)
 {
-	static portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
+	//static portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
    if(__HAL_GPIO_EXTI_GET_IT(MEMS_INT1_PIN) != RESET)
   {
     __HAL_GPIO_EXTI_CLEAR_IT(MEMS_INT1_PIN);

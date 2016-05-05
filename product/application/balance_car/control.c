@@ -14,10 +14,12 @@ float speed_target;
 float 	turn_target_speed;
 float 	turn_target_orientaion;
 int8_t	trun_mode;
-float Speed_Kp=11,Speed_Ki=2;	//速度控制PI
-float Turn_Kp=4,Turn_Kp2=3;							//转向控制P
-float Angle_Kp=125,Angle_Kd=12;	//角度控制PD
- float Car_Angle_Center=-1;			//平衡点角度
+int8_t Flag_PickUp=0;
+int8_t Flag_Fall=0;
+float Speed_Kp=12,Speed_Ki=2;	//速度控制PI
+float Turn_Kp=3,Turn_Kp2=3;							//转向控制P
+float Angle_Kp=170,Angle_Kd=17;	//角度控制PD
+ float Car_Angle_Center=-5;			//平衡点角度
  extern IMU_Offset MyOffset;
 imu_sensor_raw_data_t sensor_saw_data;//IMU和磁力计原始值
 imu_sensor_data_t sensor_data;//校准转换后的值，Offset见MyOffset参数
@@ -33,7 +35,7 @@ int16_t motor_output_Angle;
 int16_t motor_output_Speed;
 int16_t motor_output_Turn;
 int16_t steer_out[2][5]={0,0,0,0,0,
-												 0,0,0,0,0};//舵机定义二维数组，以一个数字越大优先级越高
+												 0,0,0,0,0};//舵机定义二维数组，数字越大优先级越高
  float speed_A;//速度和
  int32_t speed_L;//左边电机速度
  int32_t speed_R;//右边电机速度
@@ -42,9 +44,10 @@ int16_t steer_out[2][5]={0,0,0,0,0,
 float SpeedControlOutNew=0;
 float SpeedControlOutValue;
 float Encoder_Integral=0;												 
- int8_t Falled_Flag;
  int my_cnt=0;
 int MAG_Cnt=0;
+extern uint8_t Read_Temp_Flag;									
+	 int16_t Temperature;									 
 /**************************************************************************
 函数功能：增量PI控制器
 入口参数：编码器测量值，目标速度
@@ -71,7 +74,7 @@ int Speed_Incremental_PI (int Encoder,int Target)
 
 int Speed_PI (float Encoder,int Movement)
 {
-	static float Target_Velocity,Pwm;
+	
 	
 	Encoder_Integral +=Encoder;                                     
 		Encoder_Integral=Encoder_Integral+Movement;    
@@ -108,14 +111,14 @@ int16_t Speed_Control(float Speed_Target)
 			SpeedControlOutNew=My_Speed_PI(speed_A,Speed_Target);
 			SpeedControlOutValue=SpeedControlOutNew-Speed_ControlOutOld;	
 		}	
-//	return motor_output_Speed_temp;
+//	return motor_output_Speed_temp;//如果需要平滑输出就是使用这句
 	return	SpeedControlOutNew;
 }
 
 
 int Angle_Control_PD(float Angle,float Target,float gyro){
 	
-	return Angle_Kp*(Angle-Target)+Angle_Kd*gyro/10.0;
+	return Angle_Kp*(Angle-Target)+Angle_Kd*gyro/10.0f;
 }
 int Turn_Control(int8_t Mode,int16_t Turn_Speed,float Now_Orientation,float Target_Orientation){
 	float Diff_Orientation;
@@ -143,11 +146,22 @@ int Turn_Control(int8_t Mode,int16_t Turn_Speed,float Now_Orientation,float Targ
 }
 
 void IIC_Operation(void){
+//	 int16_t temperature;
+ //JSensor_HUM_TEMP_Typedef tdef;		
+	
 	MAG_Cnt++;
 	if(MAG_Cnt>=40){
 		MAG_Cnt=0;
 		LSM303AGR_MAG_Get_Raw_Magnetic((u8_t*)MData);
 	}
+	//if(Read_Temp_Flag==1){
+  //  tdef.temperature = &temperature;
+	//	 if (JSENSOR_OK == jsensor_app_read_sensor(JSENSOR_TYPE_HUMITY_TEMP, (void *)&tdef)) {为何读取温度是错的？
+	//		 Temperature=(temperature-32)/0.18f;
+			 
+			  //Temperature=temperature;
+ //   }
+	//}
 }
 void Car_Control(void){
 
@@ -160,14 +174,18 @@ void Car_Control(void){
 	motor1_output=motor_output_Angle-motor_output_Speed+motor_output_Turn;
 	motor2_output=motor_output_Angle-motor_output_Speed-motor_output_Turn;
 	
-	if(Fall_Detect(sensor_euler_angle.pitch,Car_Angle_Center)){
+	if(Flag_Fall||Flag_PickUp){
 		motor1_output=0;
 		motor2_output=0;
 	}
 		Motor_Control_1(motor1_output);
 		Motor_Control_2(-motor2_output);	
 	
-	IIC_Operation();//IIC为非重载函数，中断会导致其出错，所以这里将磁力计数据读取放到这里，其他不常用IIC操作放到其他任务中
+		Flag_Fall=Fall_Detect(sensor_euler_angle.pitch,Car_Angle_Center);
+	
+		//Flag_PickUp=Pick_Up_Detect( sensor_euler_angle.pitch,Car_Angle_Center, speed_L, speed_R);
+
+	IIC_Operation();//IIC为非重载函数，中断会导致其出错，所以这里将磁力计数据读取放到这里
 	my_cnt++;
 }
 

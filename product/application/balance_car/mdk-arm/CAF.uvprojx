@@ -463,6 +463,11 @@
               <FileType>1</FileType>
               <FilePath>..\vl6180x_application.c</FilePath>
             </File>
+            <File>
+              <FileName>motion.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\motion.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1429,6 +1434,11 @@
               <FileName>vl6180x_application.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\vl6180x_application.c</FilePath>
+            </File>
+            <File>
+              <FileName>motion.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\motion.c</FilePath>
             </File>
           </Files>
         </Group>

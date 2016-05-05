@@ -159,11 +159,11 @@ static void read_temp_hum(void* args)
     uint16_t temp = 0;
     float fTmp = 0;
 
-    if (p->humidity != NULL) {
-        BSP_HUM_TEMP_GetHumidity(&fTmp);
-        temp = (uint16_t)(fTmp*100);
-        *p->humidity = ((temp >> 8) & 0xFF) | ((temp & 0xFF) << 8);
-    }
+//    if (p->humidity != NULL) {
+ //       BSP_HUM_TEMP_GetHumidity(&fTmp);
+ //       temp = (uint16_t)(fTmp*100);
+ //       *p->humidity = ((temp >> 8) & 0xFF) | ((temp & 0xFF) << 8);
+ //   }
 
     if (p->temperature != NULL) {
         BSP_HUM_TEMP_GetTemperature(&fTmp);

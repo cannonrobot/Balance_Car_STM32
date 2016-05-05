@@ -8,9 +8,9 @@
 #define LSM6DS3_SOFT_RESET
 #define LSM6DS3_CLEAR_FIFO
 IMU_Offset MyOffset={0,0,0,
-										20,-5,-50,
-									//	0,0,0,
-									90,100,-225};
+										42,-43,-32,
+								//		0,0,0};
+									150,115,175};
 uint8_t isCalib=0;
 //extern IMU_Offset MyOffset;
 
@@ -43,8 +43,7 @@ static imu_status_t  imu_sensor_gyro_get_sensitivity( float *pfData );
 static imu_status_t imu_sensor_clear_fifo(void);
 #endif
 static imu_status_t imu_sensor_fifo_data_number(uint16_t* number);
-static imu_status_t imu_sensor_read_sensor_rate_config(uint8_t number);
-static void imu_sensor_read_fifo_delay(void);
+
 static uint16_t imu_sensor_get_fifo_datalength(void);
 
 
@@ -98,11 +97,8 @@ imu_status_t imu_sensor_reset(void)
 /*active sensor*/
 imu_status_t imu_sensor_select_features(sensor_selsection_t features)
 {
-
     sensor_selection = features;
-
     printf("sensor features : %x\n", sensor_selection);
-
     return imu_status_ok;
 }
 
@@ -222,6 +218,7 @@ imu_status_t imu_sensor_filter(void){
         {
             return imu_status_fail;
         }
+				return imu_status_ok;
 }
 /*start get sensor data*/
 imu_status_t imu_sensor_start(void)
@@ -480,30 +477,7 @@ static imu_status_t imu_sensor_gyro_output_status_config(uint8_t status)
     return imu_status_ok;
 }
 /*config read fifo group number*/
-static imu_status_t imu_sensor_read_sensor_rate_config(uint8_t number)
-{
-    sensor_data_param.group_number = number * 2;
 
-    return imu_status_ok;
-}
-
-static void imu_sensor_read_fifo_delay(void)
-{
-    uint16_t fifo_remain_number;
-    uint16_t  remain_group;
- 
-    if( imu_sensor_fifo_data_number(&fifo_remain_number) != imu_status_ok)
-    {
-        return;
-    }
-    printf("fifo_remain_number :%d\n", fifo_remain_number);
-    remain_group = fifo_remain_number / 6;
-    if(remain_group > sensor_data_param.group_number){
-        sensor_data_param.delay_time = 0;
-    }else{
-        sensor_data_param.delay_time = ((sensor_data_param.group_number - remain_group) / 2) * (1000 / sensor_data_param.sample_rate);
-    }
-}
 
 /*fifo read*/
 int  fifo_length ;

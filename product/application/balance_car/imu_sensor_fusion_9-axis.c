@@ -321,7 +321,7 @@ recipNorm = invSqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);
 }
 
 //·´ÕýÇÐ¼ÆËãÇã½ÇÖµ
-void count_Acc_angle()																									//¼ÆËãÇã½Ç
+void count_Acc_angle(void)																									//¼ÆËãÇã½Ç
 {
   	if(sensor_data.acc[1]>0)
 	{
@@ -463,7 +463,7 @@ void vector_normalize_E(void){
 		 from.y=0;
 		 from.z=0;
 		 
-		 heading = Pre_heading*0.9+(atan2(vector_dot_E(),vector_dot_N()) * 180) / 3.14159264*0.1 ;
+		 heading = Pre_heading*0.9f+(atan2(vector_dot_E(),vector_dot_N()) * 180.0f) / 3.1416f*0.1f ;
 		 
 		Pre_heading=heading;
 		 

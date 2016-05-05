@@ -70,6 +70,6 @@ void MadgwickAHRSupdate(float* quat, float deltaT, float gx, float gy, float gz,
 void MahonyAHRSupdate(float* quat, float deltaT, float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz);
 void Kalman_Filter(float Gyro,float Accel);
 void MahonyAHRSupdateIMU(float* quat, float deltaT, float gx, float gy, float gz, float ax, float ay, float az);
-void count_Acc_angle();
+void count_Acc_angle(void);
 #endif /*_IMU_SENSOR_FUSION_H_*/
 
